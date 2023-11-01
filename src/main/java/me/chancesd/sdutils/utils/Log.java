@@ -1,5 +1,6 @@
 package me.chancesd.sdutils.utils;
 
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,6 +47,12 @@ public final class Log {
 	public static void debug(final String message) {
 		if (debug) {
 			logger.info(message);
+		}
+	}
+
+	public static void debugLazy(final Supplier<String> string) {
+		if (debug) {
+			string.get();
 		}
 	}
 

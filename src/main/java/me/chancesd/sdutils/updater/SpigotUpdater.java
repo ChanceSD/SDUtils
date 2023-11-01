@@ -37,7 +37,7 @@ public class SpigotUpdater extends Updater {
 
 	@Override
 	public String getUpdateLink() {
-		return "https://www.spigotmc.org/resources/" + getPlugin().getName() + "." + getId();
+		return "https://www.spigotmc.org/resources/" + getPlugin().getName().toLowerCase() + "." + getId();
 	}
 
 }

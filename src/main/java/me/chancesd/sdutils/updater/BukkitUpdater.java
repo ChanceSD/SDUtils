@@ -46,9 +46,8 @@ public class BukkitUpdater extends Updater {
 		try {
 			HttpURLConnection httpConn = (HttpURLConnection) new URL(versionLink).openConnection();
 			// curse has a redirect
-			switch (httpConn.getResponseCode()) {
-			case HttpURLConnection.HTTP_MOVED_PERM:
-			case HttpURLConnection.HTTP_MOVED_TEMP:
+			final int responseCode = httpConn.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || HttpURLConnection.HTTP_MOVED_PERM == HttpURLConnection.HTTP_MOVED_TEMP) {
 				final String location = httpConn.getHeaderField("Location");
 				httpConn = (HttpURLConnection) new URL(location).openConnection();
 			}
