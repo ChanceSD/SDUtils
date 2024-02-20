@@ -23,7 +23,7 @@ public class SpigotUpdater extends Updater {
 				this.versionName = scanner.next();
 			}
 		} catch (final IOException e) {
-			Log.warning("Spigot might be down or have it's protection up! This error can be safely ignored");
+			Log.warning("Couldn't check for spigot updates, check your internet connection");
 			this.setResult(UpdateResult.FAIL_DBO);
 			return false;
 		}
