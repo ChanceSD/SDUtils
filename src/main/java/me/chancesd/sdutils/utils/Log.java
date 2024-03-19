@@ -52,7 +52,7 @@ public final class Log {
 
 	public static void debugLazy(final Supplier<String> string) {
 		if (debug) {
-			string.get();
+			logger.info(string.get());
 		}
 	}
 
