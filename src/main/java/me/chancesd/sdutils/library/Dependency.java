@@ -38,7 +38,6 @@ public abstract class Dependency {
 			final File cacheFolder = new File(plugin.getDataFolder(), "libraries");
 			if (!cacheFolder.exists())
 				cacheFolder.mkdir();
-
 			final Consumer<File> inject = f -> {
 				try {
 					InjectorUtils.INSTANCE.loadJar(plugin, f);

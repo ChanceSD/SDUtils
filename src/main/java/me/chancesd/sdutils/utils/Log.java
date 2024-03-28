@@ -10,6 +10,7 @@ public final class Log {
 
 	private static Logger logger;
 	private static boolean debug;
+	private static boolean silent;
 	private static String prefixMsg;
 
 	private Log() {
@@ -21,11 +22,13 @@ public final class Log {
 	}
 
 	public static void infoColor(final String message) {
-		Bukkit.getConsoleSender().sendMessage(prefixMsg + " " + message);
+		if (!silent)
+			Bukkit.getConsoleSender().sendMessage(prefixMsg + " " + message);
 	}
 
 	public static void info(final String message) {
-		logger.info(message);
+		if (!silent)
+			logger.info(message);
 	}
 
 	public static void severe(final String message) {
@@ -58,6 +61,10 @@ public final class Log {
 
 	public static void setDebug(final boolean debug) {
 		Log.debug = debug;
+	}
+
+	public static void setSilent(final boolean silent) {
+		Log.silent = silent;
 	}
 
 }
