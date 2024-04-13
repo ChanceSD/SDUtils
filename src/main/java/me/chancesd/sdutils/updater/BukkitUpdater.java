@@ -29,8 +29,8 @@ public class BukkitUpdater extends Updater {
 	private static final String QUERY = "/servermods/files?projectIds=";
 	private static final String HOST = "https://api.curseforge.com";
 
-	public BukkitUpdater(final Plugin plugin, final int id, final UpdateType type) {
-		super(plugin, id, type);
+	public BukkitUpdater(final Plugin plugin, final int id, final UpdateType type, final String projectSlug) {
+		super(plugin, id, type, projectSlug);
 		try {
 			this.url = new URL(HOST + QUERY + id);
 		} catch (final MalformedURLException e) {
@@ -38,6 +38,10 @@ public class BukkitUpdater extends Updater {
 			this.setResult(UpdateResult.FAIL_BADID);
 			e.printStackTrace();
 		}
+	}
+
+	public BukkitUpdater(final Plugin plugin, final int id, final UpdateType type) {
+		this(plugin, id, type, plugin.getName());
 	}
 
 	@SuppressWarnings("resource")
@@ -100,7 +104,7 @@ public class BukkitUpdater extends Updater {
 
 	@Override
 	public String getUpdateLink() {
-		return "https://dev.bukkit.org/projects/" + this.getPlugin().getName();
+		return "https://dev.bukkit.org/projects/" + getProjectSlug();
 	}
 
 }

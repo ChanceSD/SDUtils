@@ -12,7 +12,7 @@ import me.chancesd.sdutils.utils.Log;
 public class SpigotUpdater extends Updater {
 
 	public SpigotUpdater(final Plugin plugin, final int id, final UpdateType type) {
-		super(plugin, id, type);
+		super(plugin, id, type, plugin.getName());
 	}
 
 	@Override

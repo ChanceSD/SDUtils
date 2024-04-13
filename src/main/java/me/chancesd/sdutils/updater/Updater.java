@@ -29,11 +29,13 @@ public abstract class Updater {
 	private final int id;
 	private final UpdateType type;
 	private final File file;
+	private final String projectSlug;
 
-	protected Updater(final Plugin plugin, final int id, final UpdateType type) {
+	protected Updater(final Plugin plugin, final int id, final UpdateType type, final String projectSlug) {
 		this.plugin = plugin;
 		this.id = id;
 		this.type = type;
+		this.projectSlug = projectSlug;
 		if (!Bukkit.getUpdateFolderFile().exists()) {
 			Bukkit.getUpdateFolderFile().mkdirs();
 		}
@@ -142,6 +144,10 @@ public abstract class Updater {
 
 	protected final File getFile() {
 		return file;
+	}
+
+	public String getProjectSlug() {
+		return projectSlug;
 	}
 
 	protected final void setResult(final UpdateResult result) {
