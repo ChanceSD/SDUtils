@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Log {
 
@@ -19,6 +20,10 @@ public final class Log {
 	public static void setup(final Logger log, final String pluginPrefix) {
 		Log.logger = log;
 		Log.prefixMsg = pluginPrefix;
+	}
+
+	public static void setup(final JavaPlugin plugin) {
+		setup(plugin.getLogger(), "[" + plugin.getName() + "]");
 	}
 
 	public static void infoColor(final String message) {

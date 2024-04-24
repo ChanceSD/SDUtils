@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.chancesd.sdutils</groupId>
 	<artifactId>sdutils</artifactId>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.2-SNAPSHOT</version>
 	<name>SDUtils</name>
 	<description>Utilities for Spigot plugins</description>
 
