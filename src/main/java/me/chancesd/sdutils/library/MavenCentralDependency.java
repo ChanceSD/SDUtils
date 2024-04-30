@@ -7,6 +7,8 @@ import java.util.function.Consumer;
 import org.bukkit.plugin.Plugin;
 import com.alessiodp.libby.BukkitLibraryManager;
 import com.alessiodp.libby.Library;
+import com.alessiodp.libby.Library.Builder;
+import com.alessiodp.libby.relocation.Relocation;
 
 /**
  * Single Thread dependency management.
@@ -20,6 +22,7 @@ public class MavenCentralDependency extends Dependency {
 	private final String group;
 	private final String artifact;
 	private final String version;
+	private Relocation relocation;
 
 	/**
 	 * Single Threaded dependency management.
@@ -38,14 +41,20 @@ public class MavenCentralDependency extends Dependency {
 		this.version = version;
 	}
 
+	MavenCentralDependency withRelocation(final String pattern, final String relocatedPattern) {
+		this.relocation = new Relocation(pattern, relocatedPattern);
+		return this;
+	}
+
 	@Override
 	void load(final Consumer<String> onComplete, final Consumer<Exception> onError) {
 			try {
 				final BukkitLibraryManager libraryManager = new BukkitLibraryManager(plugin, "libraries");
 				libraryManager.addMavenCentral();
-				final Library lib = Library.builder().groupId(group).artifactId(artifact).version(version)
-						.build();
-				libraryManager.loadLibrary(lib);
+				final Builder libBuilder = Library.builder().groupId(group).artifactId(artifact).version(version);
+				if (relocation != null)
+					libBuilder.relocate(relocation);
+				libraryManager.loadLibrary(libBuilder.build());
 				onComplete.accept(artifact);
 			} catch (final Exception ex) {
 				onError.accept(ex);

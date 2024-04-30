@@ -60,6 +60,24 @@ public class PluginLibraries {
 		return isLoaded.get();
 	}
 
+	public static void loadDependency(final Plugin plugin, final String group, final String artifact, final String version, final String pattern,
+			final String relocated) {
+		MavenCentralDependency dependency;
+		if (pattern.isEmpty())
+			dependency = new MavenCentralDependency(plugin, group, artifact, version);
+		else
+			dependency = new MavenCentralDependency(plugin, group, artifact, version).withRelocation(pattern, relocated);
+
+		dependency.load(name -> Log.info("Library " + name + " loaded!"), ex -> {
+			Log.info(ex.getMessage());
+			ex.printStackTrace();
+		});
+	}
+
+	public static void loadDependency(final Plugin plugin, final String group, final String artifact, final String version) {
+		loadDependency(plugin, group, artifact, version, "", "");
+	}
+
 	/**
 	 * Does Spigot support library loading (1.16.5+)
 	 *
