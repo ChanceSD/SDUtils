@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
  * @author ChanceSD
  */
 public enum MCVersion {
+	V1_20_5("1.20.5"),
 	V1_20_4("1.20.4"),
 	V1_20("1.20"),
 	V1_19("1.19"),
@@ -44,11 +45,15 @@ public enum MCVersion {
 	}
 
 	public static final boolean isAtLeast(final MCVersion version) {
-		return minecraftVersion.ordinal() < version.ordinal();
+		return minecraftVersion.ordinal() <= version.ordinal();
 	}
 
 	public static final boolean isLowerThan(final MCVersion version) {
-		return minecraftVersion.ordinal() >= version.ordinal();
+		return minecraftVersion.ordinal() > version.ordinal();
+	}
+
+	public static final boolean isHigherThan(final MCVersion version) {
+		return minecraftVersion.ordinal() < version.ordinal();
 	}
 
 	public static MCVersion getMinecraftversion() {
