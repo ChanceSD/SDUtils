@@ -9,16 +9,20 @@ import me.chancesd.sdutils.utils.Log;
 
 public abstract class SDPlugin extends JavaPlugin {
 
+	private boolean isReloading;
+
 	protected Listener registerListener(final Listener listener) {
 		this.getServer().getPluginManager().registerEvents(listener, this);
 		return listener;
 	}
 
 	public void reload() {
+		setReloading(true);
 		onDisable();
 		HandlerList.unregisterAll(this);
 		Bukkit.getScheduler().cancelTasks(this);
 		onEnable();
+		setReloading(false);
 	}
 
 	@SuppressWarnings("unused")
@@ -47,6 +51,14 @@ public abstract class SDPlugin extends JavaPlugin {
 			Log.severe("You appear to be using Java 16 or lower. For now the plugin still works but please update to Java 17+");
 			Log.severe("In the future this plugin will stop supporting Java versions this old");
 		}
+	}
+
+	public boolean isReloading() {
+		return isReloading;
+	}
+
+	public void setReloading(final boolean isReloading) {
+		this.isReloading = isReloading;
 	}
 
 }
