@@ -36,6 +36,16 @@ public final class Log {
 			logger.info(message);
 	}
 
+	public static void info(final Object message) {
+		if (silent)
+			return;
+		if (message == null) {
+			logger.info("null");
+			return;
+		}
+		logger.info(message::toString);
+	}
+
 	public static void severe(final String message) {
 		logger.severe(message);
 	}
