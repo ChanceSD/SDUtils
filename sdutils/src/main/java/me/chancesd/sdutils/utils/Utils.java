@@ -1,5 +1,10 @@
 package me.chancesd.sdutils.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 public class Utils {
 
 	private Utils() {
@@ -27,8 +32,20 @@ public class Utils {
 		return true;
 	}
 
+	public static void renameFile(final File file, final String name) {
+		try {
+			Files.move(file.toPath(), file.toPath().resolveSibling(name), StandardCopyOption.REPLACE_EXISTING);
+		} catch (final IOException e) {
+			Log.severe("Error resetting config file", e);
+		}
+	}
+
 	public static String stripTags(final String version) {
 		return version.replaceAll("[-;+].+", "");
+	}
+
+	public static double roundTo1Decimal(final double value) {
+		return Math.round(value * 100.0) / 100.0;
 	}
 
 }
