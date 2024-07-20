@@ -4,10 +4,40 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.function.Consumer;
+
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 
 public class Utils {
 
+	private static boolean isPaper = hasClass("com.destroystokyo.paper.PaperConfig") || hasClass("io.papermc.paper.configuration.Configuration");
+
 	private Utils() {
+	}
+
+	private static boolean hasClass(final String className) {
+		try {
+			Class.forName(className);
+			return true;
+		} catch (final ClassNotFoundException e) {
+			return false;
+		}
+	}
+
+	public static <T extends Event> void registerEvent(final Plugin plugin, final Listener listener, final Class<T> eventClass, final Consumer<T> handler) {
+		Bukkit.getPluginManager().registerEvent(eventClass, listener, EventPriority.NORMAL, (l, event) -> {
+			if (eventClass.isInstance(event)) {
+				handler.accept(eventClass.cast(event));
+			}
+		}, plugin, true);
+	}
+
+	public static boolean isPaper() {
+		return isPaper;
 	}
 
 	public static final boolean isVersionAtLeast(final String v1, final String v2) {
