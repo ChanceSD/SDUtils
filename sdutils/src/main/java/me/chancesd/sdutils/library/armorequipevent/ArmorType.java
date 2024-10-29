@@ -1,77 +1,60 @@
 package me.chancesd.sdutils.library.armorequipevent;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public enum ArmorType {
+/**
+ * Represents the different types of armor.
+ *
+ * @author Arnah
+ * @since Jul 30, 2015
+ */
+public enum ArmorType{
+	/**
+	 * Represents armor belonging to the helmet slot, e.g. helmets, skulls, and carved pumpkins.
+	 */
 	HELMET(5),
+	/**
+	 * Represents armor belonging to the chestplate slot, e.g. chestplates and elytras.
+	 */
 	CHESTPLATE(6),
+	/**
+	 * Represents leggings.
+	 */
 	LEGGINGS(7),
+	/**
+	 * Represents boots.
+	 */
 	BOOTS(8);
 
 	private final int slot;
 
-	ArmorType(final int slot) {
+	ArmorType(final int slot){
 		this.slot = slot;
 	}
 
 	/**
-	 * Attempts to match the ArmorType for the given item.<p>
-	 * Player skulls are considered HELMET.
-	 * Elytra are considered CHESTPLATE.
+	 * Attempts to match the ArmorType for the specified ItemStack.
 	 *
 	 * @param itemStack The ItemStack to parse the type of.
-	 * @return The parsed ArmorType, or null if the given item was null/air.
+	 * @return The parsed ArmorType, or null if not found.
 	 */
-	public static ArmorType matchType(final ItemStack itemStack) {
-		if (ArmorListener.isAirOrNull(itemStack)) return null;
-
-		final String type = itemStack.getType().name();
-		if (type.endsWith("_HELMET") || type.endsWith("_SKULL") || type.endsWith("_HEAD")) return HELMET;
-		else if (type.endsWith("_CHESTPLATE") || type.equals("ELYTRA")) return CHESTPLATE;
-		else if (type.endsWith("_LEGGINGS")) return LEGGINGS;
-		else if (type.endsWith("_BOOTS")) return BOOTS;
+	public static ArmorType matchType(final ItemStack itemStack){
+		if(ArmorListener.isEmpty(itemStack)) return null;
+		final Material type = itemStack.getType();
+		final String typeName = type.name();
+		if(typeName.endsWith("_HELMET") || typeName.endsWith("_SKULL") || typeName.endsWith("_HEAD") || type == Material.CARVED_PUMPKIN) return HELMET;
+		else if(typeName.endsWith("_CHESTPLATE") || typeName.equals("ELYTRA")) return CHESTPLATE;
+		else if(typeName.endsWith("_LEGGINGS")) return LEGGINGS;
+		else if(typeName.endsWith("_BOOTS")) return BOOTS;
 		else return null;
 	}
 
 	/**
-	 * Attempts to match the ArmorType for the given item.<p>
-	 * ONLY helmets are considered HELMET.
-	 * Elytra are considered CHESTPLATE.
-	 *
-	 * @param itemStack The ItemStack to parse the type of.
-	 * @return The parsed ArmorType, or null if the given item was null/air.
+	 * Returns the raw slot where this piece of armor usually gets equipped
+	 * @return Raw slot belonging to this piece of armor
 	 */
-	public static ArmorType matchArmorType(final ItemStack itemStack) {
-		if (ArmorListener.isAirOrNull(itemStack)) return null;
-
-		final String type = itemStack.getType().name();
-		if (type.endsWith("_HELMET")) return HELMET;
-		else if (type.endsWith("_CHESTPLATE") || type.equals("ELYTRA")) return CHESTPLATE;
-		else if (type.endsWith("_LEGGINGS")) return LEGGINGS;
-		else if (type.endsWith("_BOOTS")) return BOOTS;
-		else return null;
-	}
-
-	/**
-	 * Attempts to match the ArmorType for the given item.
-	 * <p></p>
-	 * Elytra are considered CHESTPLATE.
-	 * Any other item is considered a HELMET (which allows for custom hats).
-	 *
-	 * @param itemStack The ItemStack to parse
-	 * @return The parsed ArmorType, or null if the given item was null/air.
-	 */
-	public static ArmorType parseArmorType(final ItemStack itemStack) {
-		if (ArmorListener.isAirOrNull(itemStack)) return null;
-
-		final String type = itemStack.getType().name();
-		if (type.endsWith("_CHESTPLATE") || type.equals("ELYTRA")) return CHESTPLATE;
-		else if (type.endsWith("_LEGGINGS")) return LEGGINGS;
-		else if (type.endsWith("_BOOTS")) return BOOTS;
-		else return HELMET;
-	}
-
-	public int getSlot() {
+	public int getSlot(){
 		return slot;
 	}
 }

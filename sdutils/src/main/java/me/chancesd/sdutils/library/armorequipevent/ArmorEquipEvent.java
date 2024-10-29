@@ -1,11 +1,21 @@
 package me.chancesd.sdutils.library.armorequipevent;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.annotation.Nullable;
+
+/**
+ * Called when a player equips or unequips a piece of armor.
+ *
+ * @author Arnah
+ * @since Jul 30, 2015
+ */
 public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 
 	private static final HandlerList handlers = new HandlerList();
@@ -15,6 +25,22 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 	private ItemStack oldArmorPiece, newArmorPiece;
 
 	/**
+	 * Registers the listeners for this event. If you forget to call this method, then the event will never get caled.
+	 * @param plugin Plugin to call this event from
+	 */
+	public static void registerListener(final JavaPlugin plugin) {
+		Bukkit.getServer().getPluginManager().registerEvents(new ArmorListener(), plugin);
+		try{
+			//Better way to check for this? Only in 1.13.1+?
+			Class.forName("org.bukkit.event.block.BlockDispenseArmorEvent");
+			Bukkit.getServer().getPluginManager().registerEvents(new DispenserArmorListener(), plugin);
+		} catch(final Exception ignored) {
+
+		}
+	}
+
+	/**
+	 * Creates a new ArmorEquipEvent
 	 * @param player The player who put on / removed the armor.
 	 * @param type The ArmorType of the armor added
 	 * @param oldArmorPiece The ItemStack of the armor removed.
@@ -50,7 +76,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 	/**
 	 * Sets if this event should be cancelled.
 	 *
-	 * @param cancel If this event should be cancelled.
+	 * @param cancel If this event should be cancelled. When the event is cancelled, the armor is not changed.
 	 */
 	@Override
 	public final void setCancelled(final boolean cancel){
@@ -67,6 +93,10 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 		return cancel;
 	}
 
+	/**
+	 * Returns the type of armor involved in this event
+	 * @return ArmorType
+	 */
 	public final ArmorType getType(){
 		return type;
 	}
@@ -75,6 +105,9 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 	 * Returns the last equipped armor piece, could be a piece of armor, or null
 	 */
 	public final ItemStack getOldArmorPiece(){
+		if(ArmorListener.isEmpty(oldArmorPiece)){
+			return null;
+		}
 		return oldArmorPiece;
 	}
 
@@ -83,13 +116,22 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 	}
 
 	/**
-	 * Returns the newly equipped armor, could be a piece of armor, or null
+	 * Returns the newly equipped armor or null if the armor was unequipped
+	 * @return ItemStack of armor or null
 	 */
+	@Nullable
 	public final ItemStack getNewArmorPiece(){
+		if(ArmorListener.isEmpty(newArmorPiece)){
+			return null;
+		}
 		return newArmorPiece;
 	}
 
-	public final void setNewArmorPiece(final ItemStack newArmorPiece){
+	/**
+	 * Sets the new armor piece
+	 * @param newArmorPiece The new armor piece
+	 */
+	public final void setNewArmorPiece(@Nullable final ItemStack newArmorPiece){
 		this.newArmorPiece = newArmorPiece;
 	}
 
@@ -100,6 +142,9 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 		return equipType;
 	}
 
+	/**
+	 * Represents the way of equipping or uneqipping armor.
+	 */
 	public enum EquipMethod{// These have got to be the worst documentations ever.
 		/**
 		 * When you shift click an armor piece to equip or unequip
@@ -122,7 +167,8 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 		 */
 		HOTBAR_SWAP,
 		/**
-		 * When in range of a dispenser that shoots an armor piece to equip.
+		 * When in range of a dispenser that shoots an armor piece to equip.<br>
+		 * Requires the spigot version to have {@link org.bukkit.event.block.BlockDispenseArmorEvent} implemented.
 		 */
 		DISPENSER,
 		/**
@@ -133,16 +179,5 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 		 * When you die causing all armor to unequip
 		 */
 		DEATH,
-		/**
-		 * When a hat is applied using essentials' /hat command
-		 */
-		HAT_COMMAND;
 	}
-
-	@Override
-	public String toString() {
-		return "EquipType(" + equipType +
-				") - ArmorType(" + type + ")";
-	}
-
 }
