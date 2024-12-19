@@ -3,6 +3,7 @@ package me.chancesd.sdutils.scheduler;
 import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,6 +31,11 @@ public class BukkitProvider implements SchedulerProvider {
 	@Override
 	public void runTask(final Runnable task) {
 		Bukkit.getScheduler().runTask(plugin, task);
+	}
+
+	@Override
+	public void runTask(final Runnable task, final World world, final int x, final int z) {
+		runTask(task);
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -63,6 +64,15 @@ public class ScheduleUtils {
 			final T result = task.get();
 			future.complete(result);
 		});
+		return future;
+	}
+
+	public static <T> Future<T> runPlatformTask(final Supplier<T> task, final World world, final int x, final int z) {
+		final CompletableFuture<T> future = new CompletableFuture<>();
+		provider.runTask(() -> {
+			final T result = task.get();
+			future.complete(result);
+		}, world, x, z);
 		return future;
 	}
 

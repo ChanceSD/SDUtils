@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,6 +33,11 @@ public class FoliaProvider implements SchedulerProvider {
 	@Override
 	public void runTask(final Runnable task) {
 		Bukkit.getGlobalRegionScheduler().execute(plugin, task);
+	}
+
+	@Override
+	public void runTask(final Runnable task, final World world, final int x, final int z) {
+		Bukkit.getRegionScheduler().execute(plugin, world, x, z, task);
 	}
 
 	@Override
