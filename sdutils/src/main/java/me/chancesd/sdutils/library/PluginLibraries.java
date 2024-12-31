@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.yaml.snakeyaml.reader.UnicodeReader;
 
 import me.chancesd.sdutils.utils.Log;
+import me.chancesd.sdutils.utils.Utils;
 
 /**
  * Credit to ElgarL for some of these classes
@@ -87,6 +89,15 @@ public class PluginLibraries {
 		try {
 			// Doesn't exist before 1.16.5
 			PluginDescriptionFile.class.getMethod("getLibraries");
+			if (!Utils.isVersionAtLeast(Utils.stripTags(Bukkit.getVersion()), "1.21")) {
+				try {
+					// Mohist has getLibraries but it doesn't work properly
+					Class.forName("com.mohistmc.MohistMCStart");
+					return false;
+				} catch (final ClassNotFoundException e) {
+					// Not Mohist
+				}
+			}
 			return true;
 		} catch (final Exception ex) {
 			// Server too old to support getLibraries.
