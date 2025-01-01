@@ -96,8 +96,10 @@ public class ScheduleUtils {
 		provider.runTaskLater(task, entity, delay);
 	}
 
-	public static SDTask runPlatformTaskTimer(final Runnable task, final long delay, final long period) {
-		return provider.runTaskTimer(task, delay, period);
+	public static SDTask runPlatformTaskTimer(final SDCancellableTask task, final Entity entity, final long delay, final long period) {
+		final SDTask sdTask = provider.runTaskTimer(task, entity, delay, period);
+		task.setTask(sdTask);
+		return sdTask;
 	}
 
 	public static void executeConsoleCommand(final String command) {
@@ -124,8 +126,8 @@ public class ScheduleUtils {
 		runPlatformTask(task, entity);
 	}
 
-	public static CompletableFuture<Boolean> teleport(final Player player, @NotNull final Location loc) {
-		return provider.teleport(player, loc);
+	public static CompletableFuture<Boolean> teleport(final Entity entity, @NotNull final Location loc) {
+		return provider.teleport(entity, loc);
 	}
 
 	public static void cancelAllTasks() {

@@ -22,7 +22,7 @@ public interface SchedulerProvider {
 
 	public void runTaskLater(final Runnable task, final Entity entity, final long delay);
 
-	public SDTask runTaskTimer(final Runnable task, final long delay, final long period);
+	public SDTask runTaskTimer(final Runnable task, final Entity entity, final long delay, final long period);
 
 	public void executeConsoleCommand(final String command);
 
@@ -30,7 +30,7 @@ public interface SchedulerProvider {
 
 	public boolean isPrimaryThread();
 
-	public CompletableFuture<Boolean> teleport(Player player, @NotNull Location loc);
+	public CompletableFuture<Boolean> teleport(final Entity entity, @NotNull Location loc);
 
 	public void cancelAllTasks();
 

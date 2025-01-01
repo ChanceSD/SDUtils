@@ -49,7 +49,7 @@ public class BukkitProvider implements SchedulerProvider {
 	}
 
 	@Override
-	public SDTask runTaskTimer(final Runnable task, final long delay, final long period) {
+	public SDTask runTaskTimer(final Runnable task, final Entity entity, final long delay, final long period) {
 		return new WrappedBukkitTask(Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period));
 	}
 
@@ -69,14 +69,14 @@ public class BukkitProvider implements SchedulerProvider {
 	}
 
 	@Override
-	public CompletableFuture<Boolean> teleport(final Player player, final Location loc) {
+	public CompletableFuture<Boolean> teleport(final Entity entity, final Location loc) {
 		final CompletableFuture<Boolean> future = new CompletableFuture<>();
 		if (isPrimaryThread()) {
-			player.teleport(loc);
+			entity.teleport(loc);
 			future.complete(true);
 		} else {
 			runTask(() -> {
-				player.teleport(loc);
+				entity.teleport(loc);
 				future.complete(true);
 			});
 		}

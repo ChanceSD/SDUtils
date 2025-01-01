@@ -51,8 +51,8 @@ public class FoliaProvider implements SchedulerProvider {
 	}
 
 	@Override
-	public SDTask runTaskTimer(final Runnable task, final long delay, final long period) {
-		return new WrappedFoliaTask(Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> task.run(), delay, period));
+	public SDTask runTaskTimer(final Runnable task, final Entity entity, final long delay, final long period) {
+		return new WrappedFoliaTask(entity.getScheduler().runAtFixedRate(plugin, scheduledTask -> task.run(), null, delay, period));
 	}
 
 	@Override
@@ -71,8 +71,8 @@ public class FoliaProvider implements SchedulerProvider {
 	}
 
 	@Override
-	public CompletableFuture<Boolean> teleport(final Player player, final Location loc) {
-		return player.teleportAsync(loc);
+	public CompletableFuture<Boolean> teleport(final Entity entity, final Location loc) {
+		return entity.teleportAsync(loc);
 	}
 
 	@Override
