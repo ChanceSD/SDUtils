@@ -75,6 +75,10 @@ public class Utils {
 	}
 
 	public static double roundTo1Decimal(final double value) {
+		return Math.round(value * 10.0) / 10.0;
+	}
+
+	public static double roundTo2Decimal(final double value) {
 		return Math.round(value * 100.0) / 100.0;
 	}
 
