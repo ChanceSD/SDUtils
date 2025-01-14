@@ -29,8 +29,8 @@ import me.chancesd.sdutils.utils.Log;
 
 public class ScheduleUtils {
 
-	private static final boolean FOLIA_SUPPORT = checkFolia();
 	private static ScheduledExecutorService executor;
+	private static final boolean FOLIA_SUPPORT = checkFolia();
 	private static final List<ScheduledFuture<?>> scheduledTasks = new ArrayList<>();
 	private static SchedulerProvider provider;
 
@@ -44,8 +44,12 @@ public class ScheduleUtils {
 		// no point in having uncaught handler because exceptions are thrown silently in scheduled thread pool
 	}
 
+	public static void setExecutor(final ScheduledExecutorService executor) {
+		ScheduleUtils.executor = executor;
+	}
+
 	public static void runAsync(final Runnable task) {
-		executor.execute(task);
+		executor.execute(new ExceptionRunnable(task));
 	}
 
 	public static ScheduledFuture<?> runAsyncLater(final Runnable task, final long delay, final TimeUnit unit) {
