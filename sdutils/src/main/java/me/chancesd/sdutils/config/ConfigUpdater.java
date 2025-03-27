@@ -197,7 +197,7 @@ public class ConfigUpdater {
 		final String[] keys = fullKey.split("[" + SEPARATOR + "]", 2);
 		final String key = keys[0];
 		final Object value = root.get(getKeyAsObject(key, root));
-		if (value == null)
+		if (!(value instanceof Map))
 			return Collections.emptyMap();
 
 		if (keys.length == 1) {
@@ -272,7 +272,7 @@ public class ConfigUpdater {
 
 	private static void writeIgnoredValue(final Yaml yaml, final Object toWrite, final StringBuilder ignoredBuilder, final String indents) {
 		final String yml = yaml.dump(toWrite);
-		if (toWrite instanceof Collection) {
+		if (toWrite instanceof Collection && !((Collection<?>) toWrite).isEmpty()) {
 			ignoredBuilder.append("\n").append(addIndentation(yml, indents)).append("\n");
 		} else {
 			ignoredBuilder.append(" ").append(yml);
