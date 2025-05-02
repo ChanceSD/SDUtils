@@ -48,7 +48,7 @@ public class ScheduleUtils {
 	/**
 	 * Sets up the executor service with a thread pool optimized for the current system.
 	 * Must be called before using any other methods in this class.
-	 * 
+	 *
 	 * @param plugin The JavaPlugin instance that owns the tasks
 	 */
 	public static void setupExecutor(final JavaPlugin plugin) {
@@ -60,7 +60,7 @@ public class ScheduleUtils {
 
 	/**
 	 * Sets a custom executor service
-	 * 
+	 *
 	 * @param executor The executor service to use
 	 */
 	public static void setExecutor(final ScheduledExecutorService executor) {
@@ -69,7 +69,7 @@ public class ScheduleUtils {
 
 	/**
 	 * Runs a task asynchronously using the executor service
-	 * 
+	 *
 	 * @param task The task to run
 	 */
 	public static void runAsync(final Runnable task) {
@@ -78,10 +78,10 @@ public class ScheduleUtils {
 
 	/**
 	 * Runs a task asynchronously after a delay
-	 * 
-	 * @param task The task to run
+	 *
+	 * @param task  The task to run
 	 * @param delay The delay before execution
-	 * @param unit The time unit for the delay
+	 * @param unit  The time unit for the delay
 	 * @return A ScheduledFuture representing the scheduled task
 	 */
 	public static ScheduledFuture<?> runAsyncLater(final Runnable task, final long delay, final TimeUnit unit) {
@@ -90,11 +90,11 @@ public class ScheduleUtils {
 
 	/**
 	 * Runs a task asynchronously at fixed intervals
-	 * 
-	 * @param task The task to run
-	 * @param delay The initial delay before first execution
+	 *
+	 * @param task   The task to run
+	 * @param delay  The initial delay before first execution
 	 * @param period The period between successive executions
-	 * @param unit The time unit for delay and period
+	 * @param unit   The time unit for delay and period
 	 * @return A ScheduledFuture representing the scheduled task
 	 */
 	public static ScheduledFuture<?> runAsyncTimer(final Runnable task, final long delay, final long period, final TimeUnit unit) {
@@ -107,8 +107,8 @@ public class ScheduleUtils {
 	 * Runs a task on the platform's main thread and returns a result.
 	 * This will use the appropriate thread based on whether Folia is enabled.
 	 * In Folia mode, this runs on the global region scheduler.
-	 * 
-	 * @param <T> The return type of the task
+	 *
+	 * @param <T>  The return type of the task
 	 * @param task The task to run
 	 * @return A Future that will be completed with the task's result
 	 */
@@ -118,7 +118,7 @@ public class ScheduleUtils {
 			try {
 				final T result = task.get();
 				future.complete(result);
-			} catch (Throwable e) {
+			} catch (final Throwable e) {
 				future.completeExceptionally(e);
 				Log.severe(e.getMessage(), e);
 			}
@@ -130,12 +130,12 @@ public class ScheduleUtils {
 	 * Runs a task on the platform's main thread for a specific world region.
 	 * In Folia, this runs on the region scheduler for the specified chunk.
 	 * In standard Bukkit, this behaves the same as {@link #runPlatformTask(Supplier)}.
-	 * 
-	 * @param <T> The return type of the task
-	 * @param task The task to run
+	 *
+	 * @param <T>   The return type of the task
+	 * @param task  The task to run
 	 * @param world The world to run the task in
-	 * @param x The x-coordinate of the chunk
-	 * @param z The z-coordinate of the chunk
+	 * @param x     The x-coordinate of the chunk
+	 * @param z     The z-coordinate of the chunk
 	 * @return A Future that will be completed with the task's result
 	 */
 	public static <T> Future<T> runPlatformTask(final Supplier<T> task, final World world, final int x, final int z) {
@@ -144,7 +144,7 @@ public class ScheduleUtils {
 			try {
 				final T result = task.get();
 				future.complete(result);
-			} catch (Throwable e) {
+			} catch (final Throwable e) {
 				future.completeExceptionally(e);
 				Log.severe(e.getMessage(), e);
 			}
@@ -156,7 +156,7 @@ public class ScheduleUtils {
 	 * Runs a task asynchronously using the platform's scheduler.
 	 * In Folia, this uses the AsyncScheduler.
 	 * In standard Bukkit, this uses BukkitScheduler.runTaskAsynchronously.
-	 * 
+	 *
 	 * @param task The task to run
 	 */
 	public static void runPlatformAsync(final Runnable task) {
@@ -167,9 +167,9 @@ public class ScheduleUtils {
 	 * Runs a task asynchronously at fixed intervals using the platform's scheduler.
 	 * In Folia, this uses the AsyncScheduler.
 	 * In standard Bukkit, this uses BukkitScheduler.runTaskTimerAsynchronously.
-	 * 
-	 * @param task The task to run
-	 * @param delay The initial delay before first execution (in ticks)
+	 *
+	 * @param task   The task to run
+	 * @param delay  The initial delay before first execution (in ticks)
 	 * @param period The period between successive executions (in ticks)
 	 */
 	public static void runPlatformAsyncTimer(final Runnable task, final long delay, final long period) {
@@ -180,7 +180,7 @@ public class ScheduleUtils {
 	 * Runs a task on the platform's main thread.
 	 * In Folia, this runs on the global region scheduler.
 	 * In standard Bukkit, this uses BukkitScheduler.runTask.
-	 * 
+	 *
 	 * @param task The task to run
 	 */
 	public static void runPlatformTask(final Runnable task) {
@@ -191,8 +191,8 @@ public class ScheduleUtils {
 	 * Runs a task on the platform's thread for a specific entity.
 	 * In Folia, this runs on the entity's scheduler.
 	 * In standard Bukkit, this behaves the same as {@link #runPlatformTask(Runnable)}.
-	 * 
-	 * @param task The task to run
+	 *
+	 * @param task   The task to run
 	 * @param entity The entity to run the task for
 	 */
 	public static void runPlatformTask(final Runnable task, @NotNull final Entity entity) {
@@ -200,13 +200,25 @@ public class ScheduleUtils {
 	}
 
 	/**
+	 * Runs a task on the platform's thread after a delay.
+	 * In Folia, this runs on the global region scheduler.
+	 * In standard Bukkit, this uses BukkitScheduler.runTaskLater.
+	 *
+	 * @param task  The task to run
+	 * @param delay The delay before execution (in ticks)
+	 */
+	public static void runPlatformTaskLater(final Runnable task, final long delay) {
+		provider.runTaskLater(task, delay);
+	}
+
+	/**
 	 * Runs a task on the platform's thread for a specific entity after a delay.
 	 * In Folia, this runs on the entity's scheduler.
 	 * In standard Bukkit, this behaves like BukkitScheduler.runTaskLater.
-	 * 
-	 * @param task The task to run
+	 *
+	 * @param task   The task to run
 	 * @param entity The entity to run the task for
-	 * @param delay The delay before execution (in ticks)
+	 * @param delay  The delay before execution (in ticks)
 	 */
 	public static void runPlatformTaskLater(final Runnable task, final Entity entity, final long delay) {
 		provider.runTaskLater(task, entity, delay);
@@ -216,10 +228,10 @@ public class ScheduleUtils {
 	 * Runs a task on the platform's thread for a specific entity at fixed intervals.
 	 * In Folia, this runs on the entity's scheduler.
 	 * In standard Bukkit, this behaves like BukkitScheduler.runTaskTimer.
-	 * 
-	 * @param task The task to run
+	 *
+	 * @param task   The task to run
 	 * @param entity The entity to run the task for
-	 * @param delay The initial delay before first execution (in ticks)
+	 * @param delay  The initial delay before first execution (in ticks)
 	 * @param period The period between successive executions (in ticks)
 	 * @return An SDTask representing the scheduled task, which can be cancelled
 	 */
@@ -232,7 +244,7 @@ public class ScheduleUtils {
 	/**
 	 * Executes a command as the console.
 	 * In Folia, this executes on the global region scheduler.
-	 * 
+	 *
 	 * @param command The command to execute
 	 */
 	public static void executeConsoleCommand(final String command) {
@@ -241,8 +253,8 @@ public class ScheduleUtils {
 
 	/**
 	 * Executes a command as a player
-	 * 
-	 * @param player The player to execute the command as
+	 *
+	 * @param player  The player to execute the command as
 	 * @param command The command to execute
 	 */
 	public static void executePlayerCommand(final Player player, final String command) {
@@ -253,7 +265,7 @@ public class ScheduleUtils {
 	 * Ensures a task runs on the main thread.
 	 * If already on the main thread, the task runs immediately.
 	 * Otherwise, it's scheduled to run on the main thread.
-	 * 
+	 *
 	 * @param task The task to run
 	 */
 	public static void ensureMainThread(final Runnable task) {
@@ -268,8 +280,8 @@ public class ScheduleUtils {
 	 * Ensures a task runs on the thread for a specific entity.
 	 * If already on the primary thread, the task runs immediately.
 	 * Otherwise, it's scheduled to run on the entity's thread.
-	 * 
-	 * @param task The task to run
+	 *
+	 * @param task   The task to run
 	 * @param entity The entity to run the task for
 	 */
 	public static void ensureMainThread(final Runnable task, @NotNull final Entity entity) {
@@ -284,9 +296,9 @@ public class ScheduleUtils {
 	 * Teleports an entity to a location safely.
 	 * In Folia, this uses entity.teleportAsync().
 	 * In standard Bukkit, this wraps entity.teleport() in a CompletableFuture.
-	 * 
+	 *
 	 * @param entity The entity to teleport
-	 * @param loc The location to teleport to
+	 * @param loc    The location to teleport to
 	 * @return A CompletableFuture that will complete with true if teleport was successful
 	 */
 	public static CompletableFuture<Boolean> teleport(final Entity entity, @NotNull final Location loc) {
@@ -300,7 +312,7 @@ public class ScheduleUtils {
 	public static void cancelAllTasks() {
 		scheduledTasks.forEach(scheduledTask -> scheduledTask.cancel(false));
 		scheduledTasks.clear();
-		
+
 		executor.shutdown();
 		provider.cancelAllTasks();
 	}
@@ -308,9 +320,9 @@ public class ScheduleUtils {
 	/**
 	 * Creates a new bounded cached thread pool that won't reject tasks.
 	 * This pool will queue tasks when all threads are busy rather than rejecting them.
-	 * 
-	 * @param corePoolSize The minimum number of threads
-	 * @param maxPoolSize The maximum number of threads
+	 *
+	 * @param corePoolSize  The minimum number of threads
+	 * @param maxPoolSize   The maximum number of threads
 	 * @param threadFactory The factory to create threads
 	 * @return A new ExecutorService
 	 */
@@ -336,7 +348,7 @@ public class ScheduleUtils {
 
 	/**
 	 * Checks if Folia is supported on this server.
-	 * 
+	 *
 	 * @return true if Folia is available, false otherwise
 	 */
 	public static boolean checkFolia() {

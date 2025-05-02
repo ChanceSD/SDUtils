@@ -20,6 +20,8 @@ public interface SchedulerProvider {
 
 	public void runTask(final Runnable task, final Entity entity);
 
+	public void runTaskLater(Runnable task, long delay);
+
 	public void runTaskLater(final Runnable task, final Entity entity, final long delay);
 
 	public SDTask runTaskTimer(final Runnable task, final Entity entity, final long delay, final long period);

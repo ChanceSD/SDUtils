@@ -46,6 +46,11 @@ public class FoliaProvider implements SchedulerProvider {
 	}
 
 	@Override
+	public void runTaskLater(final Runnable task, final long delay) {
+		Bukkit.getGlobalRegionScheduler().runDelayed(plugin, scheduledTask -> task.run(), delay);
+	}
+
+	@Override
 	public void runTaskLater(final Runnable task, final Entity entity, final long delay) {
 		entity.getScheduler().runDelayed(plugin, scheduledTask -> task.run(), task, delay);
 	}
