@@ -29,6 +29,10 @@
 			<id>jitpack.io</id>
 			<url>https://jitpack.io/</url>
 		</repository>
+		<repository>
+			<id>xenondevs</id>
+			<url>https://repo.xenondevs.xyz/releases</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -72,9 +76,15 @@
 			<version>2.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>com.samjakob</groupId>
-			<artifactId>SpiGUI</artifactId>
-			<version>v1.3.1</version>
+			<groupId>com.jeff-media</groupId>
+			<artifactId>armor-equip-event</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+		<dependency>
+			<groupId>xyz.xenondevs.invui</groupId>
+			<artifactId>invui</artifactId>
+			<version>1.45</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -89,5 +99,39 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.5.1</version>
+				<configuration>
+					<relocations>
+						<relocation>
+							<pattern>com.jeff_media.armorequipevent</pattern>
+							<shadedPattern>me.chancesd.sdutils.library.armorequipevent</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>com.alessiodp.libby</pattern>
+							<shadedPattern>me.chancesd.sdutils.library.libby</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>xyz.xenondevs.invui</pattern>
+							<shadedPattern>me.chancesd.sdutils.library.invui</shadedPattern>
+						</relocation>
+					</relocations>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
