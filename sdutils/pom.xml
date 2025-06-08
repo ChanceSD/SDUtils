@@ -82,9 +82,15 @@
 		</dependency>
 		<dependency>
 			<groupId>xyz.xenondevs.invui</groupId>
-			<artifactId>invui</artifactId>
+			<artifactId>invui-core</artifactId>
 			<version>1.45</version>
-			<type>pom</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>xyz.xenondevs.invui</groupId>
+			<artifactId>inventory-access</artifactId>
+			<version>1.45</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -119,6 +125,10 @@
 						<relocation>
 							<pattern>xyz.xenondevs.invui</pattern>
 							<shadedPattern>me.chancesd.sdutils.library.invui</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>xyz.xenondevs.inventoryaccess</pattern>
+							<shadedPattern>me.chancesd.sdutils.library.invui.inventoryaccess</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>
