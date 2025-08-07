@@ -11,20 +11,29 @@ import java.util.stream.Collectors;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+
+import me.chancesd.sdutils.display.chat.ChatMenu;
+import me.chancesd.sdutils.display.chat.NavigationButtons;
+import me.chancesd.sdutils.display.chat.content.StaticContentProvider;
+import me.chancesd.sdutils.utils.ChatUtils;
 
 /**
  * A powerful base class for creating commands with automatic argument validation,
  * tab completion, permission checking, and subcommand support using a fluent builder pattern.
+ * 
+ * Commands are automatically integrated with plugin.yml definitions through PluginCommand.
  *
  * Example usage:
  *
  * <pre>
  * public class MyCommand extends BaseCommand {
- * 	public MyCommand() {
- * 		alias("mycommand", "mc")
- * 				.description("Example command")
+ * 	public MyCommand(PluginCommand pluginCommand) {
+ * 		super(pluginCommand);  // Automatically imports name and aliases from plugin.yml
+ * 		description("Example command")
+ * 				.displayName("My Custom Command")  // Override display name in help menus
  * 				.usage("/mycommand &lt;player&gt; [time]")
  * 				.permission("myplugin.mycommand")
  * 				.argument("target", ArgumentType.PLAYER).required().endArgument()
@@ -45,15 +54,25 @@ public abstract class BaseCommand implements TabExecutor {
 	private static Function<CommandSender, String> playerOnlyMessageProvider = sender -> "§cThis command can only be used by players.";
 
 	private BaseCommand parentCommand;
+	private PluginCommand pluginCommand;
 	private final List<String> aliases = new ArrayList<>();
 	private final List<BaseCommand> subCommands = new ArrayList<>();
 	private final Set<String> permissions = new HashSet<>();
 	private final List<ArgumentInfo> argumentInfos = new ArrayList<>();
+	private String commandDisplayName;
 	private String description = "";
 	private String usage = "";
 	private boolean playerOnly = false;
 
 	protected BaseCommand() {
+		this.commandDisplayName = getClass().getSimpleName() + " Help";
+	}
+
+	protected BaseCommand(final PluginCommand pluginCommand) {
+		this();
+		this.pluginCommand = pluginCommand;
+		// Import aliases from plugin.yml
+		alias(pluginCommand.getAliases().toArray(new String[0]));
 	}
 
 	/**
@@ -83,6 +102,26 @@ public abstract class BaseCommand implements TabExecutor {
 
 		// Handle subcommands first
 		if (args.length > 0) {
+			// Handle built-in "help" command for pagination
+			if (args[0].equalsIgnoreCase("help")) {
+				int page = 1;
+				
+				// Parse page number if provided: /command help <page>
+				if (args.length > 1) {
+					try {
+						page = Integer.parseInt(args[1]);
+						if (page < 1) page = 1;
+					} catch (final NumberFormatException e) {
+						sender.sendMessage("§cInvalid page number!");
+						return true;
+					}
+				}
+
+				showHelpMenu(sender, page);
+				return true;
+			}
+			
+			// Handle regular subcommands
 			for (final BaseCommand subCommand : subCommands) {
 				if (subCommand.isAlias(args[0])) {
 					final String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
@@ -157,7 +196,7 @@ public abstract class BaseCommand implements TabExecutor {
 	/**
 	 * Permission checking with inheritance/override support
 	 */
-	private boolean hasPermission(final CommandSender sender) {
+	public boolean hasPermission(final CommandSender sender) {
 		if (!permissions.isEmpty()) {
 			return permissions.stream().anyMatch(sender::hasPermission);
 		}
@@ -184,7 +223,7 @@ public abstract class BaseCommand implements TabExecutor {
 
 	public BaseCommand subCommand(final String name, final BaseCommand subCommand) {
 		subCommand.parentCommand = this;
-		subCommand.alias(name);
+		subCommand.aliases.add(name);
 		this.subCommands.add(subCommand);
 		return this;
 	}
@@ -196,6 +235,11 @@ public abstract class BaseCommand implements TabExecutor {
 
 	public BaseCommand usage(final String usageText) {
 		this.usage = usageText;
+		return this;
+	}
+
+	public BaseCommand displayName(final String displayNameText) {
+		this.commandDisplayName = displayNameText;
 		return this;
 	}
 
@@ -242,6 +286,11 @@ public abstract class BaseCommand implements TabExecutor {
 	public List<String> onTabComplete(final CommandSender sender, final Command command, final String alias, final String[] args) {
 		// First check for subcommand delegation if args.length > 1
 		if (args.length > 1) {
+			// Handle help command tab completion: /command help <page>
+			if (args[0].equalsIgnoreCase("help") && args.length == 2) {
+				return ChatUtils.getMatchingEntries(args[1], Arrays.asList("1", "2", "3", "4", "5"));
+			}
+			
 			for (final BaseCommand subCommand : subCommands) {
 				if (subCommand.isAlias(args[0]) && subCommand.hasPermission(sender)) {
 					final String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
@@ -256,7 +305,11 @@ public abstract class BaseCommand implements TabExecutor {
 					.filter(sub -> sub.hasPermission(sender))
 					.flatMap(sub -> sub.aliases.stream())
 					.collect(Collectors.toList());
-			return getMatchingEntries(args[0], subCommandAliases);
+			
+			// Add "help" as a built-in subcommand
+			subCommandAliases.add("help");
+			
+			return ChatUtils.getMatchingEntries(args[0], subCommandAliases);
 		}
 
 		// Provide tab completion for argument values (with permission checking)
@@ -278,9 +331,152 @@ public abstract class BaseCommand implements TabExecutor {
 		return description;
 	}
 
-	public static List<String> getMatchingEntries(final String token, final List<String> toFilter) {
-		return toFilter.stream()
-				.filter(s -> s.toLowerCase().contains(token.toLowerCase()))
+	/**
+	 * Get the usage string of this command
+	 */
+	public String getUsage() {
+		return usage;
+	}
+
+	/**
+	 * Get the aliases of this command
+	 */
+	public List<String> getAliases() {
+		return new ArrayList<>(aliases);
+	}
+
+	/**
+	 * Get the subcommands of this command
+	 */
+	public List<BaseCommand> getSubCommands() {
+		return new ArrayList<>(subCommands);
+	}
+
+	/**
+	 * Get the permissions required for this command
+	 */
+	public Set<String> getPermissions() {
+		return new HashSet<>(permissions);
+	}
+
+	/**
+	 * Check if this command requires a player
+	 */
+	public boolean isPlayerOnly() {
+		return playerOnly;
+	}
+
+	/**
+	 * Generate an interactive help menu for this command and its subcommands.
+	 * Only shows subcommands the sender has permission to use.
+	 * 
+	 * @param sender The command sender (for permission filtering)
+	 * @return A ChatMenu displaying available subcommands and their descriptions
+	 */
+	public ChatMenu generateHelpMenu(final CommandSender sender) {
+		final StaticContentProvider contentProvider = new StaticContentProvider();
+		
+		// Header with command description
+		if (!description.isEmpty()) {
+			contentProvider.addLine("#FFEB3B&l► " + description, null, null);
+			contentProvider.addLine("", null, null);
+		}
+		
+		// Show usage if available
+		if (!usage.isEmpty()) {
+			contentProvider.addLine("#9E9E9E&lUsage: &f" + usage, null, null);
+			contentProvider.addLine("", null, null);
+		}
+		
+		// Show available subcommands (filtered by permissions)
+		final List<BaseCommand> availableSubCommands = subCommands.stream()
+				.filter(subCmd -> subCmd.hasPermission(sender))
 				.collect(Collectors.toList());
+
+		final String mainCommandName = aliases.isEmpty() ? pluginCommand.getName().toLowerCase() : aliases.get(0);
+		
+		if (!availableSubCommands.isEmpty()) {
+			contentProvider.addLine("#4CAF50&l► Available Commands:", null, null);
+			
+			for (final BaseCommand subCmd : availableSubCommands) {
+				final String subCommandName = subCmd.aliases.isEmpty() ? "unknown" : subCmd.aliases.get(0);
+				final String subDescription = subCmd.getDescription().isEmpty() ? "No description available" : subCmd.getDescription();
+				final String subUsage = subCmd.usage.isEmpty() ? "" : subCmd.usage;
+				
+				// Build command line with description
+				final String commandLine = "  #4CAF50/" + mainCommandName + " " + subCommandName + " #9E9E9E- &f" + subDescription;
+				
+				// Build hover text with permissions and usage
+				final String hoverText = buildSubcommandHoverText(subDescription, subUsage, subCmd.getPermissions());
+				
+				// Add suggest command for clicking
+				final String suggestCommand = "/" + mainCommandName + " " + subCommandName;
+				
+				contentProvider.addLine(commandLine, suggestCommand, hoverText);
+			}
+		} else {
+			contentProvider.addLine("#FF5722No subcommands available or no permissions.", null, null);
+		}
+		
+		// Build the menu
+		return ChatMenu.builder()
+				.header("#607D8B&l╔════════ #FFEB3B&l" + commandDisplayName + " #9E9E9E(Page {page}/{total}) #607D8B&l════════╗")
+				.footer("#607D8B&l╚══════════════════════════════╝")
+				.linesPerPage(14)
+				.contentProvider(contentProvider)
+				.navigation(NavigationButtons.builder()
+						.navigationPrefix("/" + mainCommandName + " help")
+						.previousText("#9E9E9E[#FF5722« Previous Page#9E9E9E]")
+						.nextText("#9E9E9E[#FF5722Next Page »#9E9E9E]")
+						.build())
+				.build();
+	}
+	
+	/**
+	 * Show the auto-generated help menu to a command sender
+	 * 
+	 * @param sender The command sender to show the help menu to
+	 * @param page The page number to show (defaults to 1)
+	 */
+	public void showHelpMenu(final CommandSender sender, final int page) {
+		generateHelpMenu(sender).show(sender, page);
+	}
+	
+	/**
+	 * Show the auto-generated help menu to a command sender (first page)
+	 * 
+	 * @param sender The command sender to show the help menu to
+	 */
+	public void showHelpMenu(final CommandSender sender) {
+		showHelpMenu(sender, 1);
+	}
+	
+
+	
+	/**
+	 * Build hover text for subcommands in the help menu
+	 */
+	private String buildSubcommandHoverText(final String description, final String usage, final Set<String> permissions) {
+		final StringBuilder hover = new StringBuilder();
+		
+		hover.append("#9E9E9EClick to see command usage\n");
+		hover.append("#9E9E9E&o").append(description);
+		
+		boolean hasUsage = !usage.isEmpty();
+		boolean hasPermissions = !permissions.isEmpty();
+
+		if (hasUsage || hasPermissions) {
+			hover.append("\n");
+		}
+
+		if (hasUsage) {
+			hover.append("\n#4CAF50&lUsage: &8").append(usage);
+		}
+
+		if (hasPermissions) {
+			hover.append("\n#FF5722&lRequires: #c98d81").append(String.join(", ", permissions));
+		}
+		
+		return hover.toString();
 	}
 }

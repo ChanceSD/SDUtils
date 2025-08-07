@@ -23,7 +23,6 @@ class DisplayManagerTest {
 	private ScheduledFuture<?> mockFuture;
 
     @BeforeEach
-    @SuppressWarnings("resource")
     void setUp() {
         displayManager = new DisplayManager();
         mockPlayer = Mockito.mock(Player.class);
