@@ -72,7 +72,7 @@ public class ScheduleUtils {
 	 *
 	 * @param task The task to run
 	 */
-	public static void runAsync(final Runnable task) {
+	public static void runAsync(@NotNull final Runnable task) {
 		executor.execute(new ExceptionRunnable(task));
 	}
 
@@ -82,9 +82,14 @@ public class ScheduleUtils {
 	 * @param task  The task to run
 	 * @param delay The delay before execution
 	 * @param unit  The time unit for the delay
-	 * @return A ScheduledFuture representing the scheduled task
+	 * @return A ScheduledFuture representing the scheduled task, or null if the task could not be scheduled due to invalid parameters
+	 * @throws IllegalArgumentException if delay is negative
 	 */
-	public static ScheduledFuture<?> runAsyncLater(final Runnable task, final long delay, final TimeUnit unit) {
+	public static ScheduledFuture<?> runAsyncLater(@NotNull final Runnable task, final long delay, final TimeUnit unit) {
+		if (delay < 0) {
+			Log.warning("Cannot schedule task: delay cannot be negative (" + delay + ")");
+			return null;
+		}
 		return executor.schedule(new ExceptionRunnable(task), delay, unit);
 	}
 
@@ -95,9 +100,17 @@ public class ScheduleUtils {
 	 * @param delay  The initial delay before first execution
 	 * @param period The period between successive executions
 	 * @param unit   The time unit for delay and period
-	 * @return A ScheduledFuture representing the scheduled task
+	 * @return A ScheduledFuture representing the scheduled task, or null if the task could not be scheduled due to invalid parameters
 	 */
-	public static ScheduledFuture<?> runAsyncTimer(final Runnable task, final long delay, final long period, final TimeUnit unit) {
+	public static ScheduledFuture<?> runAsyncTimer(@NotNull final Runnable task, final long delay, final long period, final TimeUnit unit) {
+		if (delay < 0) {
+			Log.warning("Cannot schedule task: delay cannot be negative (" + delay + ")");
+			return null;
+		}
+		if (period <= 0) {
+			Log.warning("Cannot schedule task: period must be positive (" + period + " " + unit + "). Skipping task scheduling.");
+			return null;
+		}
 		final ScheduledFuture<?> scheduledTask = executor.scheduleAtFixedRate(new ExceptionRunnable(task), delay, period, unit);
 		scheduledTasks.add(scheduledTask);
 		return scheduledTask;

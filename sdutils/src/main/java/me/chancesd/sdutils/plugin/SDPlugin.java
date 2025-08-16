@@ -103,10 +103,28 @@ public abstract class SDPlugin extends JavaPlugin {
 		return new PluginHelpManager(this);
 	}
 
+	public abstract void onPluginLoad();
+
+	public abstract void onPluginEnable();
+
+	public abstract void onPluginDisable();
+
 	@Override
 	public void onLoad() {
+		Log.setup(this);
 		PluginLibraries.checkDependencies(this);
+		onPluginLoad();
+	}
+
+	@Override
+	public void onEnable() {
 		displayManager = new DisplayManager();
+		onPluginEnable();
+	}
+
+	@Override
+	public void onDisable() {
+		onPluginDisable();
 	}
 
 	public void reload() {

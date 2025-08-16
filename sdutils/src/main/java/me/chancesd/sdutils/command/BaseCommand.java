@@ -384,7 +384,7 @@ public abstract class BaseCommand implements TabExecutor {
 		
 		// Show usage if available
 		if (!usage.isEmpty()) {
-			contentProvider.addLine("#9E9E9E&lUsage: &f" + usage, null, null);
+			contentProvider.addLine("#9E9E9E&lUsage: &8" + usage, null, null);
 			contentProvider.addLine("", null, null);
 		}
 		

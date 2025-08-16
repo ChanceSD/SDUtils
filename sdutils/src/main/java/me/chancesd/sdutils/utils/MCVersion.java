@@ -31,8 +31,8 @@ public enum MCVersion {
 	V1_8("1.8"),
 	OLD("old");
 
-	private static final MCVersion minecraftVersion = getMCVersion(
-			Bukkit.getBukkitVersion().isEmpty() ? "0" : Utils.stripTags(Bukkit.getBukkitVersion()));
+	private static final MCVersion minecraftVersion = Bukkit.getBukkitVersion().isEmpty() ? MCVersion.V1_20_4 : getMCVersion(
+			Utils.stripTags(Bukkit.getBukkitVersion()));
 	private final String version;
 
 	private MCVersion(final String version) {
@@ -61,6 +61,10 @@ public enum MCVersion {
 
 	public static MCVersion getMinecraftversion() {
 		return minecraftVersion;
+	}
+
+	public String getVersion() {
+		return version;
 	}
 
 }
