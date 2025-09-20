@@ -31,6 +31,7 @@ public enum MCVersion {
 	V1_8("1.8"),
 	OLD("old");
 
+	// Bukkit version is empty on unit tests
 	private static final MCVersion minecraftVersion = Bukkit.getBukkitVersion().isEmpty() ? MCVersion.V1_20_4 : getMCVersion(
 			Utils.stripTags(Bukkit.getBukkitVersion()));
 	private final String version;
