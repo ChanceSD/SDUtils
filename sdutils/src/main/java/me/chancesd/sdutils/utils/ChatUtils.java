@@ -1,6 +1,7 @@
 package me.chancesd.sdutils.utils;
 
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,7 +50,7 @@ public class ChatUtils {
 	 */
 	@NotNull
 	public static String setPlaceholders(@Nullable final Player player, @NotNull final String message) {
-		if (USE_PLACEHOLDERAPI && player != null) {
+		if (USE_PLACEHOLDERAPI) {
 			try {
 				return PlaceholderAPI.setPlaceholders(player, message);
 			} catch (final NoClassDefFoundError e) {
@@ -58,6 +59,29 @@ public class ChatUtils {
 			}
 		}
 		return message;
+	}
+
+	/**
+	 * Process placeholders in a message with a fallback function when PlaceholderAPI is disabled
+	 *
+	 * @param player             The player to process placeholders for
+	 * @param message            The message containing placeholders
+	 * @param fallbackProcessor  A function to process placeholders when PlaceholderAPI is not available
+	 * @return The message with placeholders replaced
+	 */
+	@NotNull
+	public static String setPlaceholders(@Nullable final Player player, @NotNull final String message,
+			@NotNull final BiFunction<Player, String, String> fallbackProcessor) {
+		if (USE_PLACEHOLDERAPI) {
+			try {
+				return PlaceholderAPI.setPlaceholders(player, message);
+			} catch (final NoClassDefFoundError e) {
+				// PlaceholderAPI not available at runtime, use fallback
+				return fallbackProcessor.apply(player, message);
+			}
+		}
+		// PlaceholderAPI not enabled, use fallback
+		return fallbackProcessor.apply(player, message);
 	}
 
 	/**
