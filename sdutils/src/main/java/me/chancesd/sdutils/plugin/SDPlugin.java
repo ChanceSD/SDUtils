@@ -17,6 +17,7 @@ import me.chancesd.sdutils.command.BaseCommand;
 import me.chancesd.sdutils.command.PluginHelpManager;
 import me.chancesd.sdutils.display.DisplayManager;
 import me.chancesd.sdutils.library.PluginLibraries;
+import me.chancesd.sdutils.scheduler.ScheduleUtils;
 import me.chancesd.sdutils.utils.Log;
 
 public abstract class SDPlugin extends JavaPlugin {
@@ -118,6 +119,7 @@ public abstract class SDPlugin extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		ScheduleUtils.setupExecutor(this);
 		displayManager = new DisplayManager();
 		onPluginEnable();
 	}

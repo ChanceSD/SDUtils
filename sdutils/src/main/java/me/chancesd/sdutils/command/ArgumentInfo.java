@@ -13,19 +13,24 @@ import org.bukkit.entity.Player;
 /**
  * Stores information about a command argument including its type, validation rules,
  * and tab completion options.
- * 
- * <p>This class is used in a fluent builder pattern to define command arguments
+ *
+ * <p>
+ * This class is used in a fluent builder pattern to define command arguments
  * for {@link BaseCommand}. Each argument has a name, type, and various optional
- * properties like default values, permissions, and custom tab completions.</p>
- * 
- * <p>Example usage:</p>
+ * properties like default values, permissions, and custom tab completions.
+ * </p>
+ *
+ * <p>
+ * Example usage:
+ * </p>
+ *
  * <pre>{@code
  * command.argument("player", ArgumentType.PLAYER)
- *        .required()
- *        .requirePermission("myplugin.admin")
- *        .endArgument();
+ * 		.required()
+ * 		.requirePermission("myplugin.admin")
+ * 		.endArgument();
  * }</pre>
- * 
+ *
  * @see BaseCommand
  * @see ArgumentType
  */
@@ -35,7 +40,7 @@ public class ArgumentInfo {
 	 * Can be customized using {@link #setPlayerNotFoundMessageProvider(UnaryOperator)}.
 	 */
 	private static UnaryOperator<String> playerNotFoundMessageProvider = playerName -> "§cPlayer not found: §e" + playerName;
-	
+
 	private final String name;
 	private final ArgumentType type;
 	private boolean required = false; // Optional by default
@@ -43,13 +48,13 @@ public class ArgumentInfo {
 	private String perm = null;
 	private List<String> customTabCompletions = null;
 	private String dependsOn = null;
-	private BaseCommand parent; // For fluent return
+	private final BaseCommand parent; // For fluent return
 
 	/**
 	 * Constructor for builder pattern - only requires name and type.
-	 * 
-	 * @param name the name of this argument
-	 * @param type the type of this argument (determines validation and tab completion)
+	 *
+	 * @param name   the name of this argument
+	 * @param type   the type of this argument (determines validation and tab completion)
 	 * @param parent the parent command for fluent chaining
 	 */
 	public ArgumentInfo(final String name, final ArgumentType type, final BaseCommand parent) {
@@ -63,7 +68,7 @@ public class ArgumentInfo {
 	/**
 	 * Marks this argument as required. Required arguments must be provided
 	 * by the user and will cause command execution to fail if missing.
-	 * 
+	 *
 	 * @return this ArgumentInfo for method chaining
 	 */
 	public ArgumentInfo required() {
@@ -74,7 +79,7 @@ public class ArgumentInfo {
 	/**
 	 * Sets a default value for this argument. If the user doesn't provide
 	 * this argument, the default value will be used instead.
-	 * 
+	 *
 	 * @param defaultValue the default value to use when argument is not provided
 	 * @return this ArgumentInfo for method chaining
 	 */
@@ -87,7 +92,7 @@ public class ArgumentInfo {
 	 * Requires a specific permission to use this argument. If the user doesn't
 	 * have the permission, the argument will not appear in tab completions
 	 * and will be rejected during validation.
-	 * 
+	 *
 	 * @param permission the permission required to use this argument
 	 * @return this ArgumentInfo for method chaining
 	 */
@@ -99,7 +104,7 @@ public class ArgumentInfo {
 	/**
 	 * Sets custom tab completion values for this argument. This overrides
 	 * the default tab completions that would be generated based on the argument type.
-	 * 
+	 *
 	 * @param completions the custom tab completion values
 	 * @return this ArgumentInfo for method chaining
 	 */
@@ -111,7 +116,7 @@ public class ArgumentInfo {
 	/**
 	 * Sets custom tab completion values for this argument. This overrides
 	 * the default tab completions that would be generated based on the argument type.
-	 * 
+	 *
 	 * @param completions the list of custom tab completion values
 	 * @return this ArgumentInfo for method chaining
 	 */
@@ -123,7 +128,7 @@ public class ArgumentInfo {
 	/**
 	 * Makes this argument depend on another argument. Dependent arguments
 	 * may have different behavior based on the value of their dependency.
-	 * 
+	 *
 	 * @param argumentName the name of the argument this one depends on
 	 * @return this ArgumentInfo for method chaining
 	 */
@@ -136,7 +141,7 @@ public class ArgumentInfo {
 	 * Completes the argument definition and returns to the parent command
 	 * for further configuration. This method adds this ArgumentInfo to
 	 * the parent command's argument list.
-	 * 
+	 *
 	 * @return the parent BaseCommand for continued fluent configuration
 	 */
 	public BaseCommand endArgument() {
@@ -149,7 +154,7 @@ public class ArgumentInfo {
 	/**
 	 * Sets the global message provider for player not found errors.
 	 * This allows customization of error messages across all ArgumentInfo instances.
-	 * 
+	 *
 	 * @param provider function that takes a player name and returns an error message
 	 */
 	public static void setPlayerNotFoundMessageProvider(final UnaryOperator<String> provider) {
@@ -160,7 +165,7 @@ public class ArgumentInfo {
 
 	/**
 	 * Gets the name of this argument.
-	 * 
+	 *
 	 * @return the argument name
 	 */
 	public String getName() {
@@ -169,7 +174,7 @@ public class ArgumentInfo {
 
 	/**
 	 * Gets the type of this argument.
-	 * 
+	 *
 	 * @return the argument type
 	 */
 	public ArgumentType getType() {
@@ -178,7 +183,7 @@ public class ArgumentInfo {
 
 	/**
 	 * Checks if this argument is required.
-	 * 
+	 *
 	 * @return true if this argument is required, false if optional
 	 */
 	public boolean isRequired() {
@@ -187,7 +192,7 @@ public class ArgumentInfo {
 
 	/**
 	 * Gets the default value for this argument.
-	 * 
+	 *
 	 * @return the default value, or null if no default is set
 	 */
 	public String getDefaultValue() {
@@ -196,7 +201,7 @@ public class ArgumentInfo {
 
 	/**
 	 * Checks if this argument has a permission requirement.
-	 * 
+	 *
 	 * @return true if a permission is required, false otherwise
 	 */
 	public boolean hasPermission() {
@@ -205,7 +210,7 @@ public class ArgumentInfo {
 
 	/**
 	 * Gets the permission required for this argument.
-	 * 
+	 *
 	 * @return the required permission, or null if no permission is required
 	 */
 	public String getPermission() {
@@ -214,7 +219,7 @@ public class ArgumentInfo {
 
 	/**
 	 * Gets the name of the argument this one depends on.
-	 * 
+	 *
 	 * @return the dependency argument name, or null if no dependency
 	 */
 	public String getDependsOn() {
@@ -223,7 +228,7 @@ public class ArgumentInfo {
 
 	/**
 	 * Checks if this argument has a dependency on another argument.
-	 * 
+	 *
 	 * @return true if this argument depends on another, false otherwise
 	 */
 	public boolean hasDependency() {
@@ -236,7 +241,7 @@ public class ArgumentInfo {
 	 * Validates whether the given argument is valid for this argument type.
 	 * This method attempts to parse the argument value according to the
 	 * argument type and returns whether the parsing was successful.
-	 * 
+	 *
 	 * @param argument the command argument to validate
 	 * @return true if the argument is valid for this type, false otherwise
 	 */
@@ -279,7 +284,7 @@ public class ArgumentInfo {
 	 * Gets an appropriate error message for when validation fails.
 	 * This method returns a user-friendly error message explaining
 	 * why the argument validation failed, specific to the argument type.
-	 * 
+	 *
 	 * @param argument the command argument that failed validation
 	 * @return a formatted error message explaining the validation failure
 	 */
@@ -290,9 +295,8 @@ public class ArgumentInfo {
 		case PLAYER_OR_ALL:
 			return playerNotFoundMessageProvider.apply(argument.getValue());
 		case INTEGER:
-			return "§c'" + argument.getValue() + "' is not a valid integer.";
 		case DOUBLE:
-			return "§c'" + argument.getValue() + "' is not a valid number.";
+			return "§c'§7" + argument.getValue() + "§c' is not a valid number.";
 		case BOOLEAN:
 			return "§c'" + argument.getValue() + "' is not a valid boolean (true/false).";
 		case WORLD:
@@ -312,11 +316,13 @@ public class ArgumentInfo {
 	 * Gets appropriate tab completions for this argument type.
 	 * This method returns tab completion suggestions based on the argument type,
 	 * taking into account any custom tab completions that may have been set.
-	 * 
-	 * <p>For built-in types like PLAYER, WORLD, MATERIAL, etc., this method
+	 *
+	 * <p>
+	 * For built-in types like PLAYER, WORLD, MATERIAL, etc., this method
 	 * will return appropriate suggestions from the server (online players,
-	 * world names, material names, etc.).</p>
-	 * 
+	 * world names, material names, etc.).
+	 * </p>
+	 *
 	 * @param partial the partial input from the user to filter completions
 	 * @return a list of possible tab completions matching the partial input
 	 */
@@ -364,8 +370,8 @@ public class ArgumentInfo {
 	/**
 	 * Filters a list of strings to only include those that contain the given token.
 	 * This is used internally for tab completion filtering and performs case-insensitive matching.
-	 * 
-	 * @param token the text to search for within each string
+	 *
+	 * @param token    the text to search for within each string
 	 * @param toFilter the list of strings to filter
 	 * @return a filtered list containing only strings that contain the token
 	 */
