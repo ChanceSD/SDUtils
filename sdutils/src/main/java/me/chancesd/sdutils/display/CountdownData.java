@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 
 import me.chancesd.sdutils.display.DisplayManager.MessageSource;
 import me.chancesd.sdutils.display.DisplayManager.TimeProgressSource;
+import me.chancesd.sdutils.utils.Log;
 
 public class CountdownData {
 	private final TimeProgressSource progressSource;
@@ -31,6 +32,12 @@ public class CountdownData {
 			if (onFinish != null) {
 				onFinish.run();
 			}
+			return true;
+		}
+
+		// Check for negative timePassed which causes progress > 1.0
+		if (timePassed < 0) {
+			Log.severe("TimePassed is negative: " + timePassed);
 			return true;
 		}
 

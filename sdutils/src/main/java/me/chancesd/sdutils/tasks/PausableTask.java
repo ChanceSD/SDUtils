@@ -7,6 +7,7 @@ import me.chancesd.sdutils.scheduler.ScheduleUtils;
 
 public abstract class PausableTask implements Runnable {
 	private long finishTime;
+	private long duration;
 	private ScheduledFuture<?> task;
 	private boolean paused;
 	private long pausedAt;
@@ -14,6 +15,7 @@ public abstract class PausableTask implements Runnable {
 
 	protected PausableTask(final long duration) {
 		this.finishTime = System.currentTimeMillis() + duration;
+		this.duration = duration;
 		scheduleTask(duration);
 	}
 
@@ -66,6 +68,10 @@ public abstract class PausableTask implements Runnable {
 
 	public long getFinishTime() {
 		return finishTime;
+	}
+
+	public long getDuration() {
+		return duration;
 	}
 
 }

@@ -127,10 +127,6 @@
 				<configuration>
 					<relocations>
 						<relocation>
-							<pattern>com.jeff_media.armorequipevent</pattern>
-							<shadedPattern>me.chancesd.sdutils.library.armorequipevent</shadedPattern>
-						</relocation>
-						<relocation>
 							<pattern>com.alessiodp.libby</pattern>
 							<shadedPattern>me.chancesd.sdutils.library.libby</shadedPattern>
 						</relocation>
