@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import me.chancesd.sdutils.utils.ChatUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class ChatLine {
 		this.components = new ArrayList<>(components);
 	}
 
-	public BaseComponent toComponent() {
+	private ComponentBuilder toComponentBuilder() {
 		final ComponentBuilder mainComponent = new ComponentBuilder();
 
 		for (final Component comp : components) {
@@ -53,8 +52,15 @@ public class ChatLine {
 
 			mainComponent.append(textComp);
 		}
+		return mainComponent;
+	}
 
-		return mainComponent.build();
+	public BaseComponent toComponent() {
+		return toComponentBuilder().build();
+	}
+
+	public BaseComponent[] toComponentArray() {
+		return toComponentBuilder().create();
 	}
 
 	/**

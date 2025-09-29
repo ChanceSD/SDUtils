@@ -1,6 +1,7 @@
 package me.chancesd.sdutils.display.chat;
 
 import me.chancesd.sdutils.utils.ChatUtils;
+import me.chancesd.sdutils.utils.MCVersion;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,8 +25,12 @@ public class MenuSession {
      * Send a ChatLine to the command sender, using appropriate method for Player vs Console
      */
     private void sendMessage(final ChatLine chatLine) {
-        if (sender instanceof Player) {
-            ((Player) sender).spigot().sendMessage(chatLine.toComponent());
+		if (sender instanceof final Player player && MCVersion.isAtLeast(MCVersion.V1_16_5)) {
+			if (MCVersion.isAtLeast(MCVersion.V1_20_4)) {
+				player.spigot().sendMessage(chatLine.toComponent());
+			} else {
+				player.spigot().sendMessage(chatLine.toComponentArray());
+			}
         } else {
             sender.sendMessage(ChatUtils.colorize(chatLine.getPlainText()));
         }
@@ -35,8 +40,8 @@ public class MenuSession {
      * Send an empty line
      */
     private void sendEmptyLine() {
-        if (sender instanceof Player) {
-            ((Player) sender).spigot().sendMessage();
+		if (sender instanceof final Player player) {
+			player.spigot().sendMessage();
         } else {
             sender.sendMessage("");
         }
