@@ -106,7 +106,7 @@ public class DisplayManager implements Runnable {
 			}
 		}
 
-		if (countdowns.isEmpty()) {
+		if (countdowns.isEmpty() && timer != null) {
 			timer.cancel(false);
 			timer = null;
 		}
@@ -129,11 +129,12 @@ public class DisplayManager implements Runnable {
 
 	/**
 	 * Cleanup method to be called when shutting down or disabling.
-	 * Removes all boss bars from players.
+	 * Removes all boss bars from players and clears countdowns.
 	 */
 	public void cleanup() {
 		allBossBars.forEach((player, bars) -> bars.values().forEach(bar -> bar.removePlayer(player)));
 		allBossBars.clear();
+		countdowns.clear();
 	}
 
 }
