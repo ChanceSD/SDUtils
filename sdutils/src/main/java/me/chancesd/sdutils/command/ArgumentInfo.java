@@ -249,9 +249,9 @@ public class ArgumentInfo {
 		try {
 			switch (type) {
 			case PLAYER:
-				return argument.getAsPlayerOrNull() != null;
+				return argument.getAsPlayer() != null;
 			case PLAYER_OR_ALL:
-				return argument.isWildcard() || argument.getAsPlayerOrNull() != null;
+				return argument.isWildcard() || argument.getAsPlayerOrWildcard() != null;
 			case INTEGER:
 				argument.getAsInt();
 				return true;
@@ -270,8 +270,7 @@ public class ArgumentInfo {
 			case DURATION:
 				argument.getAsDuration();
 				return true;
-			case STRING:
-			case STRING_ARRAY:
+			case STRING, STRING_ARRAY:
 			default:
 				return true;
 			}
@@ -332,7 +331,7 @@ public class ArgumentInfo {
 		}
 
 		switch (type) {
-		case PLAYER:
+		case PLAYER, OFFLINE_PLAYER:
 			final List<String> playerNames = Bukkit.getOnlinePlayers().stream()
 					.map(Player::getName)
 					.collect(Collectors.toList());
@@ -359,8 +358,7 @@ public class ArgumentInfo {
 			return getMatchingEntries(partial, Arrays.asList("30s", "5m", "1h", "1d", "1h30m"));
 		case BOOLEAN:
 			return getMatchingEntries(partial, Arrays.asList("true", "false"));
-		case STRING:
-		case STRING_ARRAY:
+		case STRING, STRING_ARRAY:
 			return getMatchingEntries(partial, Arrays.asList(name));
 		default:
 			return new ArrayList<>();

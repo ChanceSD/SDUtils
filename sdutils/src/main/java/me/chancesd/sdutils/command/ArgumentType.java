@@ -31,5 +31,8 @@ public enum ArgumentType {
 	MATERIAL,
 
 	/** A duration argument (e.g., "30s", "5m", "2h", "1d") */
-	DURATION
+	DURATION,
+
+	/** A player name argument that supports both online and offline players */
+	OFFLINE_PLAYER
 }

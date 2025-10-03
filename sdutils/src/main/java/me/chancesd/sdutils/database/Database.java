@@ -567,14 +567,27 @@ public class Database {
 		}
 	}
 
-	public int getRowCount(final Table table) {
+	/**
+	 * Execute a count query with custom SQL and parameters
+	 *
+	 * @param table Table to query
+	 * @param where SQL WHERE clause (e.g. "WHERE column = ?")
+	 * @param args  Objects for prepared statement
+	 * @return Count result, 0 if error or no results
+	 */
+	public int executeCountQuery(final Table table, final String where, final Object... args) {
 		try (final Connection connection = getConnection();
-				final PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM " + table.getName());
-				final ResultSet result = ps.executeQuery()) {
-			if (result.next())
-				return result.getInt(1);
-		} catch (final Exception e) {
-			log("Failed to get row count", e);
+				final PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM " + table.getName() + " " + where)) {
+			for (int i = 0; i < args.length; i++) {
+				ps.setObject(i + 1, args[i]);
+			}
+			try (final ResultSet result = ps.executeQuery()) {
+				if (result.next()) {
+					return result.getInt(1);
+				}
+			}
+		} catch (final SQLException e) {
+			log("Failed to execute count query: " + where, e);
 		}
 		return 0;
 	}

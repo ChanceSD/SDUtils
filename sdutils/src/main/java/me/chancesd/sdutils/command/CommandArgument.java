@@ -2,6 +2,7 @@ package me.chancesd.sdutils.command;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -21,7 +22,7 @@ public class CommandArgument {
 
 	/**
 	 * Gets the raw string value of this argument.
-	 * 
+	 *
 	 * @return the raw argument value
 	 */
 	public String getValue() {
@@ -30,7 +31,7 @@ public class CommandArgument {
 
 	/**
 	 * Converts this argument to an integer.
-	 * 
+	 *
 	 * @return the integer value
 	 * @throws IllegalStateException if the value is not a valid integer
 	 */
@@ -44,7 +45,7 @@ public class CommandArgument {
 
 	/**
 	 * Converts this argument to a double.
-	 * 
+	 *
 	 * @return the double value
 	 * @throws IllegalStateException if the value is not a valid number
 	 */
@@ -59,7 +60,7 @@ public class CommandArgument {
 	/**
 	 * Converts this argument to a boolean.
 	 * Accepts: true/false, yes/no, on/off (case insensitive)
-	 * 
+	 *
 	 * @return the boolean value
 	 * @throws IllegalStateException if the value is not a valid boolean
 	 */
@@ -75,7 +76,7 @@ public class CommandArgument {
 
 	/**
 	 * Checks if this argument is a wildcard "*".
-	 * 
+	 *
 	 * @return true if the value is "*"
 	 */
 	public boolean isWildcard() {
@@ -84,7 +85,7 @@ public class CommandArgument {
 
 	/**
 	 * Alias for {@link #isWildcard()} for better readability in player contexts.
-	 * 
+	 *
 	 * @return true if the value represents "all players"
 	 */
 	public boolean isAllPlayers() {
@@ -92,16 +93,49 @@ public class CommandArgument {
 	}
 
 	/**
-	 * Converts this argument to a Player object, or null if it's a wildcard.
-	 * 
-	 * @return the Player object, or null if wildcard
+	 * Converts this argument to a Player object.
+	 * Use for PLAYER argument types - guaranteed to return a valid online player
+	 * due to framework pre-validation (never null).
+	 *
+	 * @return the online Player object (never null for PLAYER args)
 	 */
-	public Player getAsPlayerOrNull() {
+	public Player getAsPlayer() {
+		return Bukkit.getPlayer(value);
+	}
+
+	/**
+	 * Converts this argument to a Player object, or null if it's a wildcard.
+	 * Use for PLAYER_OR_ALL argument types where wildcard "*" is expected.
+	 *
+	 * @return the Player object, or null if wildcard ("*")
+	 */
+	public Player getAsPlayerOrWildcard() {
 		return isWildcard() ? null : Bukkit.getPlayer(value);
 	}
+
+	/**
+	 * Converts this argument to an OfflinePlayer object (supports both online and offline players).
+	 * Use for OFFLINE_PLAYER argument types where offline players are acceptable.
+	 * First tries to find an online player, then falls back to offline player lookup.
+	 *
+	 * Note: This method will create a new OfflinePlayer if the name doesn't exist,
+	 * as per Bukkit's behavior. Check hasPlayedBefore() if you need to verify existence.
+	 *
+	 * @return the OfflinePlayer object (never null)
+	 */
+	public OfflinePlayer getAsOfflinePlayer() {
+		// First try to get online player
+		final Player onlinePlayer = Bukkit.getPlayer(value);
+		if (onlinePlayer != null) {
+			return onlinePlayer;
+		}
+
+		return Bukkit.getOfflinePlayer(value);
+	}
+
 	/**
 	 * Converts this argument to a World object.
-	 * 
+	 *
 	 * @return the World object
 	 * @throws IllegalStateException if the world is not found
 	 */
@@ -115,7 +149,7 @@ public class CommandArgument {
 
 	/**
 	 * Converts this argument to a Material object.
-	 * 
+	 *
 	 * @return the Material object
 	 * @throws IllegalStateException if the material is not valid
 	 */
@@ -126,10 +160,11 @@ public class CommandArgument {
 			throw new IllegalStateException("Invalid material: " + value);
 		}
 	}
+
 	/**
 	 * Converts this argument to an NCDuration object.
 	 * Supports formats like "30s", "5m", "2h", "1d", or combinations like "1h30m"
-	 * 
+	 *
 	 * @return the NCDuration object
 	 * @throws IllegalStateException if the value is not a valid duration format
 	 */

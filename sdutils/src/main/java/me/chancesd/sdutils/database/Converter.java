@@ -34,7 +34,9 @@ public interface Converter {
 	 * @param database Selected database
 	 * @return Needs conversion?
 	 */
-	public boolean needsConversion(Database database);
+	public default boolean needsConversion(final Database database) {
+		return database.getPlugin().getConfig().getInt("Database Version") < getMinimumDatabaseVersion();
+	}
 
 	/**
 	 * Old table format.
@@ -49,6 +51,13 @@ public interface Converter {
 	 * @return Table
 	 */
 	public Table getNewTable();
+
+	/**
+	 * Minimum database version required to not need conversion
+	 *
+	 * @return Minimum database version
+	 */
+	public int getMinimumDatabaseVersion();
 
 	/**
 	 * Convert all loaded entries

@@ -16,13 +16,13 @@ public final class TimeUtil {
 
 	/**
 	 * Gets a formatted time difference using translations from an enum class.
-	 * 
+	 *
 	 * @param langClass the enum class that implements TimeLangProvider
-	 * @param date the target date in milliseconds since epoch
+	 * @param date      the target date in milliseconds since epoch
 	 * @return formatted time difference string using the class's translations
 	 */
-	public static String getDiffUntil(Class<? extends Enum<? extends TimeLangProvider>> langClass, final long date) {
-		TimeLangProvider provider = getProviderFromClass(langClass);
+	public static String getDiffUntil(final Class<? extends Enum<? extends TimeLangProvider>> langClass, final long date) {
+		final TimeLangProvider provider = getProviderFromClass(langClass);
 		return getDiffUntil(provider, date);
 	}
 
@@ -32,13 +32,13 @@ public final class TimeUtil {
 
 	/**
 	 * Gets a formatted duration string using translations from an enum class.
-	 * 
-	 * @param langClass the enum class that implements TimeLangProvider
+	 *
+	 * @param langClass  the enum class that implements TimeLangProvider
 	 * @param durationMs the duration in milliseconds
 	 * @return formatted duration string using the class's translations
 	 */
-	public static String getDiffDuration(Class<? extends Enum<? extends TimeLangProvider>> langClass, final long durationMs) {
-		TimeLangProvider provider = getProviderFromClass(langClass);
+	public static String getDiffDuration(final Class<? extends Enum<? extends TimeLangProvider>> langClass, final long durationMs) {
+		final TimeLangProvider provider = getProviderFromClass(langClass);
 		return getDiffDuration(provider, durationMs);
 	}
 
@@ -62,7 +62,7 @@ public final class TimeUtil {
 				sb.append(" ").append(value).append(" ").append(lang.getTime(types[i]));
 			}
 		}
-		if (sb.length() == 0)
+		if (sb.isEmpty())
 			return lang.getTime(ChronoUnit.FOREVER);
 		return sb.toString().trim();
 	}
@@ -70,13 +70,13 @@ public final class TimeUtil {
 	/**
 	 * Helper method to get a TimeLangProvider from an enum class
 	 */
-	private static TimeLangProvider getProviderFromClass(Class<? extends Enum<? extends TimeLangProvider>> langClass) {
+	private static TimeLangProvider getProviderFromClass(final Class<? extends Enum<? extends TimeLangProvider>> langClass) {
 		try {
-			Enum<? extends TimeLangProvider>[] constants = langClass.getEnumConstants();
+			final Enum<? extends TimeLangProvider>[] constants = langClass.getEnumConstants();
 			if (constants != null && constants.length > 0) {
 				return (TimeLangProvider) constants[0];
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// Fallback to default if anything goes wrong
 		}
 		return null;
