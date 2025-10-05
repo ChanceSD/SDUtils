@@ -14,10 +14,21 @@ import me.chancesd.sdutils.utils.NCDuration;
  * with proper validation and error handling.
  */
 public class CommandArgument {
+	private final String name;
 	private final String value;
 
-	public CommandArgument(final String value) {
+	public CommandArgument(final String name, final String value) {
+		this.name = name;
 		this.value = value;
+	}
+
+	/**
+	 * Gets the name of this argument.
+	 *
+	 * @return the argument name, or null if not set
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**

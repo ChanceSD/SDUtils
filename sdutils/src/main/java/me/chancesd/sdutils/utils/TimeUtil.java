@@ -53,7 +53,7 @@ public final class TimeUtil {
 		final StringBuilder sb = new StringBuilder();
 		int accuracy = 0;
 		for (int i = 0; i < types.length; i++) {
-			if (accuracy > 2) {
+			if (accuracy >= 2) {
 				break;
 			}
 			final int value = duration.get(types[i]);

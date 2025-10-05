@@ -101,6 +101,14 @@ public class NCDuration {
 		return duration.getNano() / 1000_000;
 	}
 
+	public boolean isZero() {
+		return duration.isZero();
+	}
+
+	public boolean isNotZero() {
+		return !duration.isZero();
+	}
+
 	public NCDuration plusMillis(final long milis) {
 		return new NCDuration(duration.plusMillis(milis));
 	}

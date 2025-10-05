@@ -152,11 +152,11 @@ public abstract class BaseCommand implements TabExecutor {
 
 				if (argInfo.getType() == ArgumentType.STRING_ARRAY) {
 					final String joinedValue = String.join(" ", Arrays.copyOfRange(args, i, args.length));
-					parsedArgs.add(new CommandArgument(joinedValue));
+					parsedArgs.add(new CommandArgument(argInfo.getName(), joinedValue));
 					break; // no validation needed for STRING_ARRAY
 				}
 
-				final CommandArgument argument = new CommandArgument(args[i]);
+				final CommandArgument argument = new CommandArgument(argInfo.getName(), args[i]);
 				if (!argInfo.isValid(argument)) {
 					sender.sendMessage(argInfo.getValidationErrorMessage(argument));
 					return true;
@@ -174,11 +174,11 @@ public abstract class BaseCommand implements TabExecutor {
 				} else if (argInfo.hasDependency()) {
 					// Only add if dependency was provided by user
 					if (userProvidedArgs.contains(argInfo.getDependsOn()) && argInfo.getDefaultValue() != null) {
-						parsedArgs.add(new CommandArgument(argInfo.getDefaultValue()));
+						parsedArgs.add(new CommandArgument(argInfo.getName(), argInfo.getDefaultValue()));
 					}
 				} else if (argInfo.getDefaultValue() != null) {
 					// Regular optional argument with default value
-					parsedArgs.add(new CommandArgument(argInfo.getDefaultValue()));
+					parsedArgs.add(new CommandArgument(argInfo.getName(), argInfo.getDefaultValue()));
 				}
 				// Note: Optional arguments without default values or unmet dependencies are not added to parsedArgs
 			}
@@ -266,9 +266,9 @@ public abstract class BaseCommand implements TabExecutor {
 	 * Get argument by name from parsed arguments
 	 */
 	public CommandArgument getArgument(final List<CommandArgument> args, final String name) {
-		for (int i = 0; i < Math.min(args.size(), argumentInfos.size()); i++) {
-			if (argumentInfos.get(i).getName().equals(name)) {
-				return args.get(i);
+		for (final CommandArgument arg : args) {
+			if (name.equals(arg.getName())) {
+				return arg;
 			}
 		}
 		return null;
