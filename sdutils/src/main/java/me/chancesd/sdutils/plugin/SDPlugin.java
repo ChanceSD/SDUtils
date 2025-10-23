@@ -126,9 +126,9 @@ public abstract class SDPlugin extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		ScheduleUtils.cancelAllTasks();
-		displayManager.cleanup();
 		onPluginDisable();
+		displayManager.cleanup();
+		ScheduleUtils.cancelAllTasks();
 	}
 
 	public void reload() {
