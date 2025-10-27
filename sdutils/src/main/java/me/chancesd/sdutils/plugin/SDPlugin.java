@@ -122,6 +122,7 @@ public abstract class SDPlugin extends JavaPlugin {
 		ScheduleUtils.setupExecutor(this);
 		displayManager = new DisplayManager();
 		onPluginEnable();
+		checkJavaVersion();
 	}
 
 	@Override
@@ -140,7 +141,6 @@ public abstract class SDPlugin extends JavaPlugin {
 		setReloading(false);
 	}
 
-	@SuppressWarnings("unused")
 	private void checkJavaVersion() {
 		int javaVersion;
 		String version = System.getProperty("java.version");
@@ -162,9 +162,9 @@ public abstract class SDPlugin extends JavaPlugin {
 		} catch (final NumberFormatException e) {
 			return;
 		}
-		if (javaVersion < 17) {
-			Log.severe("You appear to be using Java 16 or lower. For now the plugin still works but please update to Java 17+");
-			Log.severe("In the future this plugin will stop supporting Java versions this old");
+		if (javaVersion < 21) {
+			Log.warning("You appear to be using Java 20 or lower. For now the plugin still works but please update to Java 21+");
+			Log.warning("In the future this plugin will stop supporting Java versions this old");
 		}
 	}
 
