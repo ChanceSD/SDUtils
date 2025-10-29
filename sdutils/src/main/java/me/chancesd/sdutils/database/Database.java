@@ -26,6 +26,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import me.chancesd.sdutils.database.DatabaseConfigBuilder.DatabaseType;
+import me.chancesd.sdutils.utils.Log;
 import me.chancesd.sdutils.utils.MCVersion;
 
 public class Database {
@@ -601,14 +602,10 @@ public class Database {
 	 * Returns the database connection.
 	 *
 	 * @return Database connection.
+	 * @throws SQLException if a database access error occurs
 	 */
-	public Connection getConnection() {
-		try {
-			return connectionPool.getConnection();
-		} catch (final SQLException e) {
-			log("Error getting database connection", e);
-		}
-		return null;
+	public Connection getConnection() throws SQLException {
+		return connectionPool.getConnection();
 	}
 
 	/**
@@ -625,7 +622,6 @@ public class Database {
 	}
 
 	private void setLogLevel(final Level level) {
-		@SuppressWarnings("resource")
 		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 		ctx.getConfiguration().getLoggerConfig("com.zaxxer.hikari.HikariDataSource").setLevel(level);
 	}
@@ -642,7 +638,7 @@ public class Database {
 	}
 
 	private void log(final String message, final Throwable t) {
-		plugin.getLogger().log(java.util.logging.Level.SEVERE, message, t);
+		Log.severe(message, t);
 	}
 
 	public JavaPlugin getPlugin() {
