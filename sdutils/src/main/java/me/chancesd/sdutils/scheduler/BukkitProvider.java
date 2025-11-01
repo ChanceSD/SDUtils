@@ -24,6 +24,11 @@ public class BukkitProvider implements SchedulerProvider {
 	}
 
 	@Override
+	public void runPlatformAsyncLater(final Runnable task, final long delay) {
+		Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delay);
+	}
+
+	@Override
 	public void runPlatformAsyncTimer(final Runnable task, final long delay, final long period) {
 		Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, delay, period);
 	}

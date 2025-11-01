@@ -177,6 +177,18 @@ public class ScheduleUtils {
 	}
 
 	/**
+	 * Runs a task asynchronously after a delay using the platform's scheduler.
+	 * In Folia, this uses the AsyncScheduler.
+	 * In standard Bukkit, this uses BukkitScheduler.runTaskLaterAsynchronously.
+	 *
+	 * @param task  The task to run
+	 * @param delay The delay before execution (in ticks)
+	 */
+	public static void runPlatformAsyncLater(final Runnable task, final long delay) {
+		provider.runPlatformAsyncLater(task, delay);
+	}
+
+	/**
 	 * Runs a task asynchronously at fixed intervals using the platform's scheduler.
 	 * In Folia, this uses the AsyncScheduler.
 	 * In standard Bukkit, this uses BukkitScheduler.runTaskTimerAsynchronously.

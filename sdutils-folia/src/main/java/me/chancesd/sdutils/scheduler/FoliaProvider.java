@@ -26,8 +26,13 @@ public class FoliaProvider implements SchedulerProvider {
 	}
 
 	@Override
+	public void runPlatformAsyncLater(final Runnable task, final long delay) {
+		Bukkit.getAsyncScheduler().runDelayed(plugin, scheduledTask -> task.run(), delay * 50, TimeUnit.MILLISECONDS);
+	}
+
+	@Override
 	public void runPlatformAsyncTimer(final Runnable task, final long delay, final long period) {
-		Bukkit.getAsyncScheduler().runAtFixedRate(plugin, scheduledTask -> task.run(), delay / 20, period / 20, TimeUnit.SECONDS);
+		Bukkit.getAsyncScheduler().runAtFixedRate(plugin, scheduledTask -> task.run(), delay * 50, period * 50, TimeUnit.MILLISECONDS);
 	}
 
 	@Override

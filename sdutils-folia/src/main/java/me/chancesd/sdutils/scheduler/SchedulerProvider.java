@@ -12,6 +12,8 @@ public interface SchedulerProvider {
 
 	public void runPlatformAsync(final Runnable task);
 
+	public void runPlatformAsyncLater(final Runnable task, final long delay);
+
 	public void runPlatformAsyncTimer(final Runnable task, final long delay, final long period);
 
 	public void runTask(final Runnable task);
