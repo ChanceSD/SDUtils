@@ -100,7 +100,8 @@ public class ScheduleUtils {
 	 * @param delay  The initial delay before first execution
 	 * @param period The period between successive executions
 	 * @param unit   The time unit for delay and period
-	 * @return A ScheduledFuture representing the scheduled task, or null if the task could not be scheduled due to invalid parameters
+	 * @return A ScheduledFuture representing the scheduled task, or null if the task could not be scheduled due
+	 *         to invalid parameters
 	 */
 	public static ScheduledFuture<?> runAsyncTimer(@NotNull final Runnable task, final long delay, final long period, final TimeUnit unit) {
 		if (delay < 0) {
@@ -352,7 +353,7 @@ public class ScheduleUtils {
 	 * @return A new ExecutorService
 	 */
 	public static ExecutorService newBoundedCachedThreadPool(final int corePoolSize, final int maxPoolSize, final ThreadFactory threadFactory) {
-		final BlockingQueue<Runnable> queue = new LinkedTransferQueue<Runnable>() {
+		final BlockingQueue<Runnable> queue = new LinkedTransferQueue<>() {
 			private static final long serialVersionUID = 4672233456178006928L;
 
 			@Override
@@ -369,6 +370,28 @@ public class ScheduleUtils {
 			}
 		});
 		return threadPool;
+	}
+
+	/**
+	 * Wraps a CompletableFuture's thenRun to ensure the action runs on the main thread
+	 * with proper exception logging. This is essential for operations that must run
+	 * synchronously, such as firing Bukkit events.
+	 *
+	 * @param future The CompletableFuture to attach to
+	 * @param action The action to run on the main thread after the future completes
+	 * @return A new CompletableFuture with exception logging
+	 */
+	public static CompletableFuture<Void> thenRunSync(final CompletableFuture<?> future, final Runnable action) {
+		final CompletableFuture<Void> result = new CompletableFuture<>();
+		future.thenRun(() -> provider.runTask(new ExceptionRunnable(() -> {
+			action.run();
+			result.complete(null);
+		}))).exceptionally(throwable -> {
+			Log.severe("Exception in async chain before thenRunSync: " + throwable.getMessage(), throwable);
+			result.completeExceptionally(throwable);
+			return null;
+		});
+		return result;
 	}
 
 	/**
@@ -389,7 +412,7 @@ public class ScheduleUtils {
 	/**
 	 * Simple wrapper that catches and logs exceptions from runnables
 	 */
-	static class ExceptionRunnable implements Runnable {
+	public static class ExceptionRunnable implements Runnable {
 
 		private final Runnable task;
 

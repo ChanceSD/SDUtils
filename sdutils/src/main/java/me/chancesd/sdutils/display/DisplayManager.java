@@ -5,16 +5,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
-import me.chancesd.sdutils.scheduler.ScheduleUtils;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import me.chancesd.sdutils.scheduler.ScheduleUtils.ExceptionRunnable;
 
 public class DisplayManager implements Runnable {
 
 	private static final String COUNTDOWN_PREFIX = "countdown_";
+	private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor(
+			new ThreadFactoryBuilder().setNameFormat("Display Thread - %d").build());
 
 	protected final Map<Player, List<CountdownData>> countdowns = new ConcurrentHashMap<>();
 	protected final Map<Player, Map<String, BossBar>> allBossBars = new ConcurrentHashMap<>();
@@ -28,7 +34,7 @@ public class DisplayManager implements Runnable {
 		}
 
 		if (timer == null) {
-			timer = ScheduleUtils.runAsyncTimer(this, 0, 100, TimeUnit.MILLISECONDS);
+			timer = EXECUTOR.scheduleAtFixedRate(new ExceptionRunnable(this), 0, 100, TimeUnit.MILLISECONDS);
 		}
 	}
 
@@ -119,7 +125,14 @@ public class DisplayManager implements Runnable {
 	}
 
 	public interface TimeProgressSource {
-		double getProgress();
+		/**
+		 * Returns the time passed in milliseconds.
+		 */
+		long getProgress();
+
+		/**
+		 * Returns the total goal time in milliseconds.
+		 */
 		long getGoal();
 	}
 

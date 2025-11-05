@@ -11,7 +11,7 @@ public class ProgressBar {
 	private final String originalMessage;
 	private String message;
 	private long goal;
-	private double progress;
+	private long progress;
 	private boolean dirty = true;
 
 	public ProgressBar(final String message, final int totalBars, final long goal, final String symbol) {
@@ -21,13 +21,13 @@ public class ProgressBar {
 		this.symbol = symbol;
 	}
 
-	public ProgressBar(final String message, final int totalBars, final long goal, final String symbol, final double secondsPassed) {
+	public ProgressBar(final String message, final int totalBars, final long goal, final String symbol, final long millisecondsPassed) {
 		this(message, totalBars, goal, symbol);
-		setProgress(secondsPassed);
+		setProgress(millisecondsPassed);
 		calculate();
 	}
 
-	public ProgressBar setProgress(final double progress) {
+	public ProgressBar setProgress(final long progress) {
 		if (this.progress == progress)
 			return this;
 		this.progress = progress;
@@ -46,16 +46,16 @@ public class ProgressBar {
 	public ProgressBar calculate() {
 		if (!dirty)
 			return this;
-		final double percent = progress / goal;
+		final double percent = (double) progress / goal;  // Cast for floating point division
 		final int progressBars = (int) (totalBars * percent);
 		message = originalMessage.replace("<barsLeft>", Strings.repeat(symbol, totalBars - progressBars))
 				.replace("<barsPassed>", Strings.repeat(symbol, progressBars))
-				.replace("<time>", Double.toString(Utils.roundTo1Decimal(goal - progress)));
+				.replace("<time>", Double.toString(Utils.roundTo1Decimal((goal - progress) / 1000.0)));
 		this.dirty = false;
 		return this;
 	}
 
-	public double getProgress() {
+	public long getProgress() {
 		return progress;
 	}
 

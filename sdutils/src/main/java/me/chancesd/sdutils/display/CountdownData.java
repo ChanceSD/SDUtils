@@ -25,10 +25,10 @@ public class CountdownData {
 	}
 
 	boolean update() {
-		final double timePassed = progressSource.getProgress();
-		final long totalTime = progressSource.getGoal();
+		final long timePassedMs = progressSource.getProgress();
+		final long totalTimeMs = progressSource.getGoal();
 
-		if (timePassed >= totalTime) {
+		if (timePassedMs >= totalTimeMs) {
 			if (onFinish != null) {
 				onFinish.run();
 			}
@@ -36,19 +36,19 @@ public class CountdownData {
 		}
 
 		// Check for negative timePassed which causes progress > 1.0
-		if (timePassed < 0) {
-			Log.severe("TimePassed is negative: " + timePassed);
+		if (timePassedMs < 0) {
+			Log.severe("TimePassed is negative: " + timePassedMs);
 			return true;
 		}
 
 		if (actionBarSource != null) {
-			progressBar.setProgress(timePassed).setGoal(totalTime).calculate();
+			progressBar.setProgress(timePassedMs).setGoal(totalTimeMs).calculate();
 			actionBarSource.getMessage(progressSource);
 		}
 
 		if (bossBarSource != null) {
 			bossBar.setTitle(bossBarSource.getMessage(progressSource));
-			bossBar.setProgress((totalTime - timePassed) / totalTime);
+			bossBar.setProgress((totalTimeMs - timePassedMs) / (double) totalTimeMs);
 		}
 
 		return false;
