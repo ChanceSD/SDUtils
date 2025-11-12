@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -21,18 +20,34 @@ import org.bukkit.entity.Player;
  * </p>
  *
  * <p>
+ * Alternatively, arguments can use an {@link ArgumentLoader} for asynchronous
+ * loading of complex objects (like offline players). When a loader is provided,
+ * the type-based validation is skipped in favor of the loader's validation.
+ * </p>
+ *
+ * <p>
  * Example usage:
  * </p>
  *
  * <pre>{@code
+ * // Type-based argument
  * command.argument("player", ArgumentType.PLAYER)
  * 		.required()
  * 		.requirePermission("myplugin.admin")
+ * 		.endArgument();
+ * 
+ * // Loader-based argument
+ * command.argument("offlinePlayer", ArgumentLoader.of(name -> {
+ *     UUID uuid = Bukkit.getOfflinePlayer(name).getUniqueId();
+ *     return playerManager.getOrLoadOffline(uuid);
+ * }).build())
+ * 		.required()
  * 		.endArgument();
  * }</pre>
  *
  * @see BaseCommand
  * @see ArgumentType
+ * @see ArgumentLoader
  */
 public class ArgumentInfo {
 	/**
@@ -43,6 +58,7 @@ public class ArgumentInfo {
 
 	private final String name;
 	private final ArgumentType type;
+	private final ArgumentLoader<?> loader;
 	private boolean required = false; // Optional by default
 	private String defValue = null;
 	private String perm = null;
@@ -60,6 +76,22 @@ public class ArgumentInfo {
 	public ArgumentInfo(final String name, final ArgumentType type, final BaseCommand parent) {
 		this.name = name;
 		this.type = type;
+		this.loader = BaseCommand.getDefaultLoader(type);
+		this.parent = parent;
+	}
+
+	/**
+	 * Constructor for loader-based arguments that load values asynchronously.
+	 *
+	 * @param name   the name of this argument
+	 * @param type   the type for tab completion (validation is done by the loader)
+	 * @param loader the loader to use for asynchronous value loading
+	 * @param parent the parent command for fluent chaining
+	 */
+	public ArgumentInfo(final String name, final ArgumentType type, final ArgumentLoader<?> loader, final BaseCommand parent) {
+		this.name = name;
+		this.type = type;
+		this.loader = loader;
 		this.parent = parent;
 	}
 
@@ -235,6 +267,24 @@ public class ArgumentInfo {
 		return dependsOn != null && !dependsOn.isEmpty();
 	}
 
+	/**
+	 * Checks if this argument uses an {@link ArgumentLoader} for async loading.
+	 *
+	 * @return true if this argument has a loader, false otherwise
+	 */
+	public boolean hasLoader() {
+		return loader != null;
+	}
+
+	/**
+	 * Gets the {@link ArgumentLoader} for this argument.
+	 *
+	 * @return the argument loader, or null if no loader is configured
+	 */
+	public ArgumentLoader<?> getLoader() {
+		return loader;
+	}
+
 	// === Validation Methods ===
 
 	/**
@@ -247,33 +297,42 @@ public class ArgumentInfo {
 	 */
 	public boolean isValid(final CommandArgument argument) {
 		try {
-			switch (type) {
-			case PLAYER:
+			if (type == ArgumentType.PLAYER) {
 				return argument.getAsPlayer() != null;
-			case PLAYER_OR_ALL:
+			} else if (type == ArgumentType.PLAYER_OR_ALL) {
 				return argument.isWildcard() || argument.getAsPlayerOrWildcard() != null;
-			case INTEGER:
+			} else if (type == ArgumentType.INTEGER) {
 				argument.getAsInt();
 				return true;
-			case DOUBLE:
+			} else if (type == ArgumentType.DOUBLE) {
 				argument.getAsDouble();
 				return true;
-			case BOOLEAN:
+			} else if (type == ArgumentType.BOOLEAN) {
 				argument.getAsBoolean();
 				return true;
-			case WORLD:
+			} else if (type == ArgumentType.WORLD) {
 				argument.getAsWorld();
 				return true;
-			case MATERIAL:
+			} else if (type == ArgumentType.MATERIAL) {
 				argument.getAsMaterial();
 				return true;
-			case DURATION:
+			} else if (type == ArgumentType.DURATION) {
 				argument.getAsDuration();
 				return true;
-			case STRING, STRING_ARRAY:
-			default:
+			} else if (type == ArgumentType.STRING || type == ArgumentType.STRING_ARRAY) {
 				return true;
+			} else if (type.isEnumType()) {
+				// Validate enum types by checking if the value matches any enum constant
+				final String value = argument.getValue().toUpperCase();
+				final Class<? extends Enum<?>> enumClass = type.getEnumClass();
+				for (final Enum<?> constant : enumClass.getEnumConstants()) {
+					if (constant.name().equalsIgnoreCase(value)) {
+						return true;
+					}
+				}
+				return false;
 			}
+			return true;
 		} catch (final Exception e) {
 			return false;
 		}
@@ -288,25 +347,32 @@ public class ArgumentInfo {
 	 * @return a formatted error message explaining the validation failure
 	 */
 	public String getValidationErrorMessage(final CommandArgument argument) {
-		switch (type) {
-		case PLAYER:
+		if (type == ArgumentType.PLAYER) {
 			return playerNotFoundMessageProvider.apply(argument.getValue());
-		case PLAYER_OR_ALL:
+		} else if (type == ArgumentType.PLAYER_OR_ALL) {
 			return playerNotFoundMessageProvider.apply(argument.getValue());
-		case INTEGER:
-		case DOUBLE:
+		} else if (type == ArgumentType.INTEGER || type == ArgumentType.DOUBLE) {
 			return "§c'§7" + argument.getValue() + "§c' is not a valid number.";
-		case BOOLEAN:
+		} else if (type == ArgumentType.BOOLEAN) {
 			return "§c'" + argument.getValue() + "' is not a valid boolean (true/false).";
-		case WORLD:
+		} else if (type == ArgumentType.WORLD) {
 			return "§c'" + argument.getValue() + "' is not a valid world name.";
-		case MATERIAL:
+		} else if (type == ArgumentType.MATERIAL) {
 			return "§c'" + argument.getValue() + "' is not a valid material name.";
-		case DURATION:
+		} else if (type == ArgumentType.DURATION) {
 			return "§c'" + argument.getValue() + "' is not a valid duration. Use formats like '30s', '5m', '2h', '1d'.";
-		case STRING:
-		case STRING_ARRAY:
-		default:
+		} else if (type == ArgumentType.STRING || type == ArgumentType.STRING_ARRAY) {
+			return "§c'" + argument.getValue() + "' is not valid for " + name + ".";
+		} else if (type.isEnumType()) {
+			final StringBuilder options = new StringBuilder();
+			final Enum<?>[] constants = type.getEnumClass().getEnumConstants();
+			for (int i = 0; i < constants.length; i++) {
+				if (i > 0) options.append("&8, ");
+				options.append("&e").append(constants[i].name());
+			}
+			return "#FF5555Invalid " + type.getEnumClass().getSimpleName() + ". &7Available options are: &e" + options;
+		} else {
+			// For other custom types, provide a generic message
 			return "§c'" + argument.getValue() + "' is not valid for " + name + ".";
 		}
 	}
@@ -330,39 +396,44 @@ public class ArgumentInfo {
 			return getMatchingEntries(partial, customTabCompletions);
 		}
 
-		switch (type) {
-		case PLAYER, OFFLINE_PLAYER:
+		// Check if the type has custom tab completions (e.g., from enumType() or custom())
+		if (type.hasTabCompletions()) {
+			return getMatchingEntries(partial, type.getTabCompletions().get());
+		}
+
+		// Handle predefined types
+		if (type == ArgumentType.PLAYER || type == ArgumentType.OFFLINE_PLAYER) {
 			final List<String> playerNames = Bukkit.getOnlinePlayers().stream()
 					.map(Player::getName)
-					.collect(Collectors.toList());
+					.toList();
 			return getMatchingEntries(partial, playerNames);
-		case PLAYER_OR_ALL:
+		} else if (type == ArgumentType.PLAYER_OR_ALL) {
 			final List<String> completions = new ArrayList<>();
 			completions.add("*");
 			completions.addAll(Bukkit.getOnlinePlayers().stream()
 					.map(Player::getName)
-					.collect(Collectors.toList()));
+					.toList());
 			return getMatchingEntries(partial, completions);
-		case WORLD:
+		} else if (type == ArgumentType.WORLD) {
 			final List<String> worldNames = Bukkit.getWorlds().stream()
 					.map(org.bukkit.World::getName)
-					.collect(Collectors.toList());
+					.toList();
 			return getMatchingEntries(partial, worldNames);
-		case MATERIAL:
+		} else if (type == ArgumentType.MATERIAL) {
 			final List<String> materialNames = Arrays.stream(Material.values())
 					.map(Material::name)
 					.map(String::toLowerCase)
-					.collect(Collectors.toList());
+					.toList();
 			return getMatchingEntries(partial, materialNames);
-		case DURATION:
+		} else if (type == ArgumentType.DURATION) {
 			return getMatchingEntries(partial, Arrays.asList("30s", "5m", "1h", "1d", "1h30m"));
-		case BOOLEAN:
+		} else if (type == ArgumentType.BOOLEAN) {
 			return getMatchingEntries(partial, Arrays.asList("true", "false"));
-		case STRING, STRING_ARRAY:
+		} else if (type == ArgumentType.STRING || type == ArgumentType.STRING_ARRAY) {
 			return getMatchingEntries(partial, Arrays.asList(name));
-		default:
-			return new ArrayList<>();
 		}
+		
+		return new ArrayList<>();
 	}
 
 	/**
@@ -376,6 +447,6 @@ public class ArgumentInfo {
 	private static List<String> getMatchingEntries(final String token, final List<String> toFilter) {
 		return toFilter.stream()
 				.filter(s -> s.toLowerCase().contains(token.toLowerCase()))
-				.collect(Collectors.toList());
+				.toList();
 	}
 }

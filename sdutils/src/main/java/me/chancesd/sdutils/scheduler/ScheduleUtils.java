@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import me.chancesd.sdutils.utils.Log;
+import me.chancesd.sdutils.utils.Utils;
 
 /**
  * Utility class for scheduling tasks across both regular Bukkit and Folia environments.
@@ -304,18 +305,19 @@ public class ScheduleUtils {
 
 	/**
 	 * Ensures a task runs on the thread for a specific entity.
-	 * If already on the primary thread, the task runs immediately.
-	 * Otherwise, it's scheduled to run on the entity's thread.
+	 * If already on the primary thread, the task runs immediately and returns null.
+	 * Otherwise, it's scheduled to run on the entity's thread and returns an SDTask.
 	 *
 	 * @param task   The task to run
 	 * @param entity The entity to run the task for
+	 * @return An SDTask representing the scheduled task, or null if run immediately
 	 */
-	public static void ensureMainThread(final Runnable task, @NotNull final Entity entity) {
+	public static SDTask ensureMainThread(final Runnable task, @NotNull final Entity entity) {
 		if (Bukkit.isPrimaryThread()) { // different from above method for untag on Folia
 			task.run();
-			return;
+			return null;
 		}
-		runPlatformTask(task, entity);
+		return provider.runTask(task, entity);
 	}
 
 	/**
@@ -394,12 +396,7 @@ public class ScheduleUtils {
 		return result;
 	}
 
-	/**
-	 * Checks if Folia is supported on this server.
-	 *
-	 * @return true if Folia is available, false otherwise
-	 */
-	public static boolean checkFolia() {
+	private static boolean checkFolia() {
 		try {
 			Class.forName("io.papermc.paper.threadedregions.RegionizedServerInitEvent");
 			Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
@@ -407,6 +404,24 @@ public class ScheduleUtils {
 		} catch (final Throwable ignored) {
 			return false;
 		}
+	}
+
+	/**
+	 * Checks if this server is running Folia
+	 *
+	 * @return true if Folia, false otherwise
+	 */
+	public static boolean isFolia() {
+		return FOLIA_SUPPORT;
+	}
+
+	/**
+	 * Checks if the server is stopping on Paper/Folia
+	 *
+	 * @return true if stopping, false otherwise
+	 */
+	public static boolean isServerStopping() {
+		return Utils.isPaper() && provider.isServerStopping();
 	}
 
 	/**

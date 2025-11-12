@@ -16,11 +16,11 @@ public interface SchedulerProvider {
 
 	public void runPlatformAsyncTimer(final Runnable task, final long delay, final long period);
 
-	public void runTask(final Runnable task);
+	public SDTask runTask(final Runnable task);
 
 	public void runTask(final Runnable task, World world, int x, int z);
 
-	public void runTask(final Runnable task, final Entity entity);
+	public SDTask runTask(final Runnable task, final Entity entity);
 
 	public void runTaskLater(Runnable task, long delay);
 
@@ -33,6 +33,8 @@ public interface SchedulerProvider {
 	public void executePlayerCommand(final Player player, final String command);
 
 	public boolean isPrimaryThread();
+
+	public boolean isServerStopping();
 
 	public CompletableFuture<Boolean> teleport(final Entity entity, @NotNull Location loc);
 

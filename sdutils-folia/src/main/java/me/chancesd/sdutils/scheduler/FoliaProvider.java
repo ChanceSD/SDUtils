@@ -36,8 +36,9 @@ public class FoliaProvider implements SchedulerProvider {
 	}
 
 	@Override
-	public void runTask(final Runnable task) {
+	public SDTask runTask(final Runnable task) {
 		Bukkit.getGlobalRegionScheduler().execute(plugin, task);
+		return null;
 	}
 
 	@Override
@@ -46,8 +47,8 @@ public class FoliaProvider implements SchedulerProvider {
 	}
 
 	@Override
-	public void runTask(final Runnable task, final Entity entity) {
-		entity.getScheduler().run(plugin, scheduledTask -> task.run(), task);
+	public SDTask runTask(final Runnable task, final Entity entity) {
+		return new WrappedFoliaTask(entity.getScheduler().run(plugin, scheduledTask -> task.run(), task));
 	}
 
 	@Override
@@ -78,6 +79,11 @@ public class FoliaProvider implements SchedulerProvider {
 	@Override
 	public boolean isPrimaryThread() {
 		return Bukkit.isGlobalTickThread();
+	}
+
+	@Override
+	public boolean isServerStopping() {
+		return Bukkit.isStopping();
 	}
 
 	@Override

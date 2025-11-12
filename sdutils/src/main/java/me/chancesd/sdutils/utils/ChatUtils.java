@@ -141,6 +141,13 @@ public class ChatUtils {
 		return matcher.appendTail(buffer).toString();
 	}
 
+	public static ChatColor getLastColor(final String string) {
+		final String lastColors = ChatColor.getLastColors(string);
+		if (lastColors.isEmpty())
+			return null;
+		return ChatColor.getByChar(lastColors.replace("§", ""));
+	}
+
 	/**
 	 * Send a message to a command sender
 	 *

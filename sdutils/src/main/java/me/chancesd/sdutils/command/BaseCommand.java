@@ -2,9 +2,11 @@ package me.chancesd.sdutils.command;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -18,6 +20,7 @@ import org.bukkit.entity.Player;
 import me.chancesd.sdutils.display.chat.ChatMenu;
 import me.chancesd.sdutils.display.chat.NavigationButtons;
 import me.chancesd.sdutils.display.chat.content.StaticContentProvider;
+import me.chancesd.sdutils.scheduler.ScheduleUtils;
 import me.chancesd.sdutils.utils.ChatUtils;
 
 /**
@@ -52,6 +55,7 @@ public abstract class BaseCommand implements TabExecutor {
 	// Global defaults for all commands
 	private static Function<CommandSender, String> noPermissionMessageProvider = sender -> "§cYou don't have permission to use this command.";
 	private static Function<CommandSender, String> playerOnlyMessageProvider = sender -> "§cThis command can only be used by players.";
+	private static final java.util.Map<ArgumentType, ArgumentLoader<?>> defaultLoaders = new HashMap<>();
 
 	private BaseCommand parentCommand;
 	private PluginCommand pluginCommand;
@@ -86,6 +90,28 @@ public abstract class BaseCommand implements TabExecutor {
 		playerOnlyMessageProvider = playerOnly;
 		// Also set the provider for ArgumentInfo
 		ArgumentInfo.setPlayerNotFoundMessageProvider(playerNotFound);
+	}
+
+	/**
+	 * Register a default ArgumentLoader for a specific ArgumentType.
+	 * When an argument is defined with this type but no custom loader,
+	 * the default loader will be used automatically.
+	 * 
+	 * @param type   the ArgumentType to register a default loader for
+	 * @param loader the default loader to use
+	 */
+	public static void registerDefaultLoader(final ArgumentType type, final ArgumentLoader<?> loader) {
+		defaultLoaders.put(type, loader);
+	}
+
+	/**
+	 * Get the default loader for a specific ArgumentType, if one exists.
+	 * 
+	 * @param type the ArgumentType to get the default loader for
+	 * @return the default loader, or null if none is registered
+	 */
+	static ArgumentLoader<?> getDefaultLoader(final ArgumentType type) {
+		return defaultLoaders.get(type);
 	}
 
 	@Override
@@ -158,7 +184,7 @@ public abstract class BaseCommand implements TabExecutor {
 
 				final CommandArgument argument = new CommandArgument(argInfo.getName(), args[i]);
 				if (!argInfo.isValid(argument)) {
-					sender.sendMessage(argInfo.getValidationErrorMessage(argument));
+					sender.sendMessage(ChatUtils.colorize(argInfo.getValidationErrorMessage(argument)));
 					return true;
 				}
 
@@ -184,8 +210,67 @@ public abstract class BaseCommand implements TabExecutor {
 			}
 		}
 
-		execute(sender, label, parsedArgs);
+		// Handle async argument loading if any arguments have loaders
+		final List<CompletableFuture<Void>> loaderFutures = new ArrayList<>();
+		for (final CommandArgument arg : parsedArgs) {
+			final ArgumentInfo argInfo = getArgumentInfo(arg.getName());
+			if (argInfo != null && argInfo.hasLoader()) {
+				@SuppressWarnings("unchecked")
+				final ArgumentLoader<Object> loader = (ArgumentLoader<Object>) argInfo.getLoader();
+				
+				// Validate and get context in one operation
+				final java.util.Optional<?> context = loader.validateAndGetContext(arg.getValue());
+				if (context.isEmpty()) {
+					sender.sendMessage(loader.getValidationError(arg.getValue()));
+					return true;
+				}
+				
+				final CompletableFuture<Void> future = loader.loadWithContext(arg.getValue(), context.get())
+						.thenAccept(arg::setLoadedValue)
+						.exceptionally(throwable -> {
+							// Store loading error
+							arg.setLoadError(throwable);
+							return null;
+						});
+				loaderFutures.add(future);
+			}
+		}
+
+		// If there are async loaders, wait for all to complete
+		if (!loaderFutures.isEmpty()) {
+			final CompletableFuture<Void> allLoaders = CompletableFuture.allOf(loaderFutures.toArray(new CompletableFuture[0]));
+			ScheduleUtils.thenRunSync(allLoaders, () -> {
+				// Check for loading errors
+				for (final CommandArgument arg : parsedArgs) {
+					if (arg.hasLoadError()) {
+						sender.sendMessage("§cError loading argument '§e" + arg.getName() + "§c': " + arg.getLoadError().getMessage());
+						return;
+					}
+				}
+				// All loaders succeeded, execute command
+				execute(sender, label, parsedArgs);
+			});
+		} else {
+			// No async loaders, execute immediately
+			execute(sender, label, parsedArgs);
+		}
+
 		return true;
+	}
+
+	/**
+	 * Gets the ArgumentInfo for a given argument name.
+	 * 
+	 * @param name the argument name
+	 * @return the ArgumentInfo, or null if not found
+	 */
+	private ArgumentInfo getArgumentInfo(final String name) {
+		for (final ArgumentInfo info : argumentInfos) {
+			if (info.getName().equals(name)) {
+				return info;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -253,6 +338,20 @@ public abstract class BaseCommand implements TabExecutor {
 	 */
 	public ArgumentInfo argument(final String name, final ArgumentType type) {
 		return new ArgumentInfo(name, type, this);
+	}
+
+	/**
+	 * Start building a new argument that uses an {@link ArgumentLoader} for async loading.
+	 * This is useful for loading complex objects (like offline players) that may require
+	 * database queries or other slow operations.
+	 * 
+	 * @param name   the name of the argument
+	 * @param type   the type for tab completion (validation is done by the loader)
+	 * @param loader the loader to use for asynchronously loading the argument value
+	 * @return a new ArgumentInfo instance for fluent configuration
+	 */
+	public ArgumentInfo argument(final String name, final ArgumentType type, final ArgumentLoader<?> loader) {
+		return new ArgumentInfo(name, type, loader, this);
 	}
 
 	/**

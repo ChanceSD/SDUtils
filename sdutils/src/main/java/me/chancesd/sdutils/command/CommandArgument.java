@@ -12,10 +12,15 @@ import me.chancesd.sdutils.utils.NCDuration;
  * Represents a parsed command argument with type-safe conversion methods.
  * This class provides convenient methods to convert string arguments to their expected types
  * with proper validation and error handling.
+ * 
+ * <p>Arguments can also be loaded asynchronously using {@link ArgumentLoader}, in which case
+ * the loaded object is stored and can be retrieved with {@link #get()}.</p>
  */
 public class CommandArgument {
 	private final String name;
 	private final String value;
+	private Object loadedValue;
+	private Throwable loadError;
 
 	public CommandArgument(final String name, final String value) {
 		this.name = name;
@@ -185,5 +190,57 @@ public class CommandArgument {
 		} catch (final IllegalArgumentException e) {
 			throw new IllegalStateException(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Gets the loaded value from an {@link ArgumentLoader}.
+	 * This method should be used when the argument was loaded asynchronously.
+	 * 
+	 * @param <T> the expected type of the loaded value
+	 * @return the loaded value
+	 * @throws IllegalStateException if no value was loaded
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T get() {
+		if (loadedValue != null) {
+			return (T) loadedValue;
+		}
+		throw new IllegalStateException("No loaded value for argument: " + name);
+	}
+
+	/**
+	 * Sets the loaded value for this argument (used internally by command framework).
+	 * 
+	 * @param value the loaded value to store
+	 */
+	void setLoadedValue(final Object value) {
+		this.loadedValue = value;
+	}
+
+	/**
+	 * Sets a loading error for this argument (used internally by command framework).
+	 * 
+	 * @param error the error that occurred during loading
+	 */
+	void setLoadError(final Throwable error) {
+		this.loadError = error;
+	}
+
+	/**
+	 * Checks if this argument has a loading error.
+	 * 
+	 * @return true if an error occurred during loading, false otherwise
+	 */
+	boolean hasLoadError() {
+		return loadError != null;
+	}
+
+	/**
+	 * Gets the loading error for this argument.
+	 * 
+	 * @return the loading error, or null if no error occurred
+	 */
+	Throwable getLoadError() {
+		return loadError;
 	}
 }

@@ -34,8 +34,8 @@ public class BukkitProvider implements SchedulerProvider {
 	}
 
 	@Override
-	public void runTask(final Runnable task) {
-		Bukkit.getScheduler().runTask(plugin, task);
+	public SDTask runTask(final Runnable task) {
+		return new WrappedBukkitTask(Bukkit.getScheduler().runTask(plugin, task));
 	}
 
 	@Override
@@ -44,8 +44,8 @@ public class BukkitProvider implements SchedulerProvider {
 	}
 
 	@Override
-	public void runTask(final Runnable task, final Entity entity) {
-		runTask(task);
+	public SDTask runTask(final Runnable task, final Entity entity) {
+		return runTask(task);
 	}
 
 	@Override
@@ -79,15 +79,20 @@ public class BukkitProvider implements SchedulerProvider {
 	}
 
 	@Override
+	public boolean isServerStopping() {
+		return false;
+	}
+
+	@Override
 	public CompletableFuture<Boolean> teleport(final Entity entity, final Location loc) {
 		final CompletableFuture<Boolean> future = new CompletableFuture<>();
 		if (isPrimaryThread()) {
-			entity.teleport(loc);
-			future.complete(true);
+			final boolean success = entity.teleport(loc);
+			future.complete(success);
 		} else {
 			runTask(() -> {
-				entity.teleport(loc);
-				future.complete(true);
+				final boolean success = entity.teleport(loc);
+				future.complete(success);
 			});
 		}
 		return future;
