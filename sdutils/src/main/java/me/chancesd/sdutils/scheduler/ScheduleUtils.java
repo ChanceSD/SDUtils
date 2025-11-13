@@ -334,6 +334,27 @@ public class ScheduleUtils {
 	}
 
 	/**
+	 * Teleports an entity to a location safely with error logging.
+	 * In Folia, this uses entity.teleportAsync().
+	 * In standard Bukkit, this wraps entity.teleport() in a CompletableFuture.
+	 * Failed teleports will be logged with the provided error message.
+	 *
+	 * @param entity       The entity to teleport
+	 * @param loc          The location to teleport to
+	 * @param errorMessage The error message to log on failure, or null to disable logging
+	 * @return A CompletableFuture that will complete with true if teleport was successful
+	 */
+	public static CompletableFuture<Boolean> teleport(final Entity entity, @NotNull final Location loc, @NotNull final String errorMessage) {
+		final CompletableFuture<Boolean> future = provider.teleport(entity, loc);
+		future.whenComplete((success, ex) -> {
+			if (!success || ex != null) {
+				Log.severe(errorMessage, ex);
+			}
+		});
+		return future;
+	}
+
+	/**
 	 * Cancels all scheduled tasks and shuts down the executor.
 	 * This should be called when your plugin is disabled.
 	 */
