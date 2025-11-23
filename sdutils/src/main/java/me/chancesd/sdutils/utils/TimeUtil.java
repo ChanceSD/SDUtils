@@ -59,7 +59,7 @@ public final class TimeUtil {
 			final int value = duration.get(types[i]);
 			if (value > 0) {
 				accuracy++;
-				sb.append(" ").append(value).append(" ").append(lang.getTime(types[i]));
+				sb.append(" ").append(value).append(lang.getTime(types[i]));
 			}
 		}
 		if (sb.isEmpty())
