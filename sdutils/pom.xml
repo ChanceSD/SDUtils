@@ -101,7 +101,7 @@
 		<dependency>
 			<groupId>xyz.xenondevs.invui</groupId>
 			<artifactId>inventory-access</artifactId>
-			<version>1.45</version>
+			<version>1.47</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
