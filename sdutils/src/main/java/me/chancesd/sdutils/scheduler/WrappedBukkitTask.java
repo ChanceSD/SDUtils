@@ -6,6 +6,7 @@ import org.bukkit.scheduler.BukkitTask;
 public class WrappedBukkitTask implements SDTask {
 
 	private final BukkitTask task;
+	private boolean cancelled;
 
 	public WrappedBukkitTask(final BukkitTask task) {
 		this.task = task;
@@ -14,6 +15,7 @@ public class WrappedBukkitTask implements SDTask {
 	@Override
 	public void cancel() {
 		task.cancel();
+		cancelled = true;
 	}
 
 	@Override
@@ -23,7 +25,7 @@ public class WrappedBukkitTask implements SDTask {
 
 	@Override
 	public boolean isCancelled() {
-		return task.isCancelled();
+		return cancelled;
 	}
 
 	@Override
