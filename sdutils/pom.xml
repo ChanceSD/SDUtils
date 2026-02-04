@@ -23,7 +23,7 @@
 		<!-- Libby (AlessioDP) Repository -->
 		<repository>
 			<id>maven-snapshots</id>
-			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+			<url>https://repo.alessiodp.com/snapshots</url>
 		</repository>
 		<repository>
 			<id>jitpack.io</id>
