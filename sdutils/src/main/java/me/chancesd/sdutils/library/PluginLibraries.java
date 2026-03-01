@@ -12,6 +12,7 @@ import org.yaml.snakeyaml.reader.UnicodeReader;
 
 import me.chancesd.sdutils.utils.Log;
 import me.chancesd.sdutils.utils.Utils;
+import me.chancesd.sdutils.utils.MCVersion;
 
 /**
  * Credit to ElgarL for some of these classes
@@ -89,7 +90,7 @@ public class PluginLibraries {
 		try {
 			// Doesn't exist before 1.16.5
 			PluginDescriptionFile.class.getMethod("getLibraries");
-			if (!Utils.isVersionAtLeast(Utils.stripTags(Bukkit.getVersion()), "1.21")) {
+			if (MCVersion.isLowerThan(MCVersion.V1_21)) {
 				try {
 					// Mohist has getLibraries but it doesn't work properly
 					Class.forName("com.mohistmc.MohistMCStart");
