@@ -8,6 +8,9 @@ import org.bukkit.Bukkit;
  * @author ChanceSD
  */
 public enum MCVersion {
+	V26_3("26.3"),
+	V26_2("26.2"),
+	V26_1("26.1"),
 	V1_21_11("1.21.11"),
 	V1_21_9("1.21.9"),
 	V1_21("1.21"),
