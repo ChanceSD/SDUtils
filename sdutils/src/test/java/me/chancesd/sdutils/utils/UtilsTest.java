@@ -16,6 +16,11 @@ class UtilsTest {
     void testStripTags() {
         assertEquals("1.16.5", Utils.stripTags("1.16.5-DEV"));
         assertEquals("1.16.5", Utils.stripTags("1.16.5+build.123"));
+        assertEquals("26.3", Utils.stripTags("26.3.build.981"));
+        assertEquals("26.3", Utils.stripTags("26.3.build.981-stable"));
+        assertEquals("26.3", Utils.stripTags("26.3.revision.981"));
+        assertEquals("26.3.981", Utils.stripTags("26.3.981-stable"));
+        assertEquals("1.21.11", Utils.stripTags("1.21.11"));
     }
 
     @Test

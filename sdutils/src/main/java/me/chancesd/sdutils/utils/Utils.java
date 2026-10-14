@@ -71,7 +71,7 @@ public class Utils {
 	}
 
 	public static String stripTags(final String version) {
-		return version.replaceAll("[-;+].+", "");
+		return version.replaceAll("\\.\\D.*|[-;+].+", "");
 	}
 
 	public static double roundTo1Decimal(final double value) {
