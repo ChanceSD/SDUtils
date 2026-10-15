@@ -1,10 +1,12 @@
 package me.chancesd.sdutils.utils;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 public final class TimeUtil {
 
+	private static final long HALF_SECOND_MILLIS = 500;
 	private static final ChronoUnit[] types = { ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.MINUTES, ChronoUnit.SECONDS };
 
 	private TimeUtil() {
@@ -27,7 +29,8 @@ public final class TimeUtil {
 	}
 
 	public static String getDiffDuration(final TimeLangProvider lang, final long date) {
-		return TimeUtil.getDiffMsg(lang, Instant.now(), Instant.now().plusMillis(date));
+		final Instant now = Instant.now();
+		return TimeUtil.getDiffMsg(lang, now, now.plusMillis(date));
 	}
 
 	/**
@@ -43,20 +46,24 @@ public final class TimeUtil {
 	}
 
 	public static String getDiffMsg(final TimeLangProvider lang, final Instant from, final Instant to) {
-		boolean future = false;
-		if (to.equals(from))
+		if (!to.isAfter(from)) {
 			return lang.getTime(ChronoUnit.FOREVER);
-		if (to.isAfter(from)) {
-			future = true;
 		}
-		final NCDuration duration = NCDuration.between(from, to).plusMillis(future ? 50 : -50);
+
+		final NCDuration duration = NCDuration.between(from, to);
+		final Duration difference = duration.getDuration();
+		if (difference.getSeconds() < 1) {
+			return TimeUtil.formatSubsecond(lang, difference);
+		}
+
+		final NCDuration roundedDuration = duration.plusMillis(HALF_SECOND_MILLIS);
 		final StringBuilder sb = new StringBuilder();
 		int accuracy = 0;
 		for (int i = 0; i < types.length; i++) {
 			if (accuracy >= 2) {
 				break;
 			}
-			final int value = duration.get(types[i]);
+			final int value = roundedDuration.get(types[i]);
 			if (value > 0) {
 				accuracy++;
 				sb.append(" ").append(value).append(lang.getTime(types[i]));
@@ -65,6 +72,11 @@ public final class TimeUtil {
 		if (sb.isEmpty())
 			return lang.getTime(ChronoUnit.FOREVER);
 		return sb.toString().trim();
+	}
+
+	private static String formatSubsecond(final TimeLangProvider lang, final Duration duration) {
+		final long tenths = Math.max(1, duration.toMillis() / 100);
+		return (tenths / 10) + "." + (tenths % 10) + lang.getTime(ChronoUnit.SECONDS);
 	}
 
 	/**
