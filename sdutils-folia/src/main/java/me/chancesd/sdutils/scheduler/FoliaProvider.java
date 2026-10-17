@@ -68,12 +68,20 @@ public class FoliaProvider implements SchedulerProvider {
 
 	@Override
 	public void executeConsoleCommand(final String command) {
-		Bukkit.getGlobalRegionScheduler().execute(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
+		if (isPrimaryThread()) {
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+		} else {
+			runTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
+		}
 	}
 
 	@Override
 	public void executePlayerCommand(final Player player, final String command) {
-		player.performCommand(command);
+		if (isEntityOwnedByCurrentThread(player)) {
+			player.performCommand(command);
+		} else {
+			runTask(() -> player.performCommand(command), player);
+		}
 	}
 
 	@Override
@@ -82,6 +90,10 @@ public class FoliaProvider implements SchedulerProvider {
 	}
 
 	@Override
+	public boolean isEntityOwnedByCurrentThread(final Entity entity) {
+		return !Bukkit.isGlobalTickThread() && Bukkit.isOwnedByCurrentRegion(entity);
+	}
+
 	public boolean isServerStopping() {
 		return Bukkit.isStopping();
 	}

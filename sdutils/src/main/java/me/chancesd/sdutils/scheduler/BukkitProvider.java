@@ -79,6 +79,11 @@ public class BukkitProvider implements SchedulerProvider {
 	}
 
 	@Override
+	public boolean isEntityOwnedByCurrentThread(final Entity entity) {
+		return isPrimaryThread();
+	}
+
+	@Override
 	public boolean isServerStopping() {
 		return false;
 	}

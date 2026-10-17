@@ -305,19 +305,20 @@ public class ScheduleUtils {
 
 	/**
 	 * Ensures a task runs on the thread for a specific entity.
-	 * If already on the primary thread, the task runs immediately and returns null.
+	 * If already on the entity's thread, the task runs immediately and returns null.
 	 * Otherwise, it's scheduled to run on the entity's thread and returns an SDTask.
 	 *
 	 * @param task   The task to run
 	 * @param entity The entity to run the task for
 	 * @return An SDTask representing the scheduled task, or null if run immediately
 	 */
-	public static SDTask ensureMainThread(final Runnable task, @NotNull final Entity entity) {
-		if (Bukkit.isPrimaryThread()) { // different from above method for untag on Folia
+	public static SDTask ensureEntityThread(final Runnable task, final Entity entity) {
+		if (provider.isEntityOwnedByCurrentThread(entity)) {
 			task.run();
 			return null;
 		}
-		return provider.runTask(task, entity);
+
+    	return provider.runTask(task, entity);
 	}
 
 	/**

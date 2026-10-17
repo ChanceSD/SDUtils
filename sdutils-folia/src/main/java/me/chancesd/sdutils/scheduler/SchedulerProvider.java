@@ -34,6 +34,8 @@ public interface SchedulerProvider {
 
 	public boolean isPrimaryThread();
 
+	public boolean isEntityOwnedByCurrentThread(final Entity entity);
+
 	public boolean isServerStopping();
 
 	public CompletableFuture<Boolean> teleport(final Entity entity, @NotNull Location loc);
