@@ -74,8 +74,13 @@ public class Database {
 		config.addDataSourceProperty("prepStmtCacheSize", "250");
 		config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 		setLogLevel(Level.WARN);
-		this.connectionPool = new HikariDataSource(config);
-		setLogLevel(Level.INFO);
+		try {
+			this.connectionPool = new HikariDataSource(config);
+		} catch (final RuntimeException e) { // Hikari fail-fast throws unchecked exceptions
+			throw new DatabaseConnectionException(databaseType, e);
+		} finally {
+			setLogLevel(Level.INFO);
+		}
 		if (!converted) {
 			databaseFactory.doConversion(this);
 			this.converted = true;

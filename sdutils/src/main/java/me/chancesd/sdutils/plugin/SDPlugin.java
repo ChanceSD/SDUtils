@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.chancesd.sdutils.command.BaseCommand;
+import me.chancesd.sdutils.database.DatabaseConnectionException;
 import me.chancesd.sdutils.command.PluginHelpManager;
 import me.chancesd.sdutils.display.DisplayManager;
 import me.chancesd.sdutils.library.PluginLibraries;
@@ -121,15 +122,29 @@ public abstract class SDPlugin extends JavaPlugin {
 	public void onEnable() {
 		ScheduleUtils.setupExecutor(this);
 		displayManager = new DisplayManager();
-		onPluginEnable();
+		try {
+			onPluginEnable();
+		} catch (final DatabaseConnectionException e) {
+			Log.severe(e.getMessage());
+			Log.severe("Database connection failure details:");
+			Log.severe(e.getCause().toString().replaceAll("\\R{2,}", System.lineSeparator()));
+			Log.severe("Disabling " + getName() + " because the database is unavailable");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
 		checkJavaVersion();
 	}
 
 	@Override
 	public void onDisable() {
-		onPluginDisable();
-		displayManager.cleanup();
-		ScheduleUtils.cancelAllTasks();
+		try {
+			onPluginDisable();
+		} finally {
+			if (displayManager != null) {
+				displayManager.cleanup();
+			}
+			ScheduleUtils.cancelAllTasks();
+		}
 	}
 
 	public void reload() {
