@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.bukkit.Bukkit;
@@ -18,12 +19,14 @@ import me.chancesd.sdutils.database.DatabaseConnectionException;
 import me.chancesd.sdutils.command.PluginHelpManager;
 import me.chancesd.sdutils.display.DisplayManager;
 import me.chancesd.sdutils.library.PluginLibraries;
+import me.chancesd.sdutils.metrics.Metrics;
 import me.chancesd.sdutils.scheduler.ScheduleUtils;
 import me.chancesd.sdutils.utils.Log;
 
 public abstract class SDPlugin extends JavaPlugin {
 
 	private DisplayManager displayManager;
+	private Metrics metrics;
 	private boolean isReloading;
 	private final Map<String, BaseCommand> registeredCommands = new HashMap<>();
 
@@ -105,6 +108,15 @@ public abstract class SDPlugin extends JavaPlugin {
 		return new PluginHelpManager(this);
 	}
 
+	/**
+	 * Registers the plugin's metrics instance for lifecycle cleanup.
+	 *
+	 * @param metrics The metrics instance.
+	 */
+	public final void registerMetrics(final Metrics metrics) {
+		this.metrics = Objects.requireNonNull(metrics, "metrics");
+	}
+
 	public abstract void onPluginLoad();
 
 	public abstract void onPluginEnable();
@@ -140,6 +152,9 @@ public abstract class SDPlugin extends JavaPlugin {
 		try {
 			onPluginDisable();
 		} finally {
+			if (metrics != null) {
+				metrics.shutdown();
+			}
 			if (displayManager != null) {
 				displayManager.cleanup();
 			}
