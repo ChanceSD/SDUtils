@@ -76,7 +76,11 @@ public class Database {
 		setLogLevel(Level.WARN);
 		try {
 			this.connectionPool = new HikariDataSource(config);
-		} catch (final RuntimeException e) { // Hikari fail-fast throws unchecked exceptions
+		} catch (final Throwable e) {
+			// Preserve the full cause type for obfuscation, but don't wrap fatal JVM errors.
+			if (e instanceof final Error error) {
+				throw error;
+			}
 			throw new DatabaseConnectionException(databaseType, e);
 		} finally {
 			setLogLevel(Level.INFO);
