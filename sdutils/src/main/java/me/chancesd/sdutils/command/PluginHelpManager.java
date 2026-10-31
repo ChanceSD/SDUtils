@@ -3,7 +3,6 @@ package me.chancesd.sdutils.command;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.bukkit.command.CommandSender;
 
@@ -59,7 +58,7 @@ public class PluginHelpManager {
 		final Collection<BaseCommand> allCommands = plugin.getRegisteredCommands();
 		final List<BaseCommand> availableCommands = allCommands.stream()
 				.filter(cmd -> cmd.hasPermission(sender))
-				.collect(Collectors.toList());
+				.toList();
 
 		if (availableCommands.isEmpty()) {
 			contentProvider.addLine("&7No commands available.", null, null);

@@ -211,9 +211,10 @@ public class ChatUtils {
 
 	private static final int CENTER_PX = 154;
 
-	public static String centerMessage(final Player player, String message) {
+	public static String centerMessage(String message) {
 		if (message == null || message.equals(""))
-			player.sendMessage("");
+			return "";
+
 		message = colorize(message);
 
 		int messagePxSize = 0;

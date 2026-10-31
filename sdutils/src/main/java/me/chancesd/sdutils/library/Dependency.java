@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -49,7 +50,7 @@ public abstract class Dependency {
 
 			final File cached = new File(cacheFolder, getLocalName());
 			if (cached.length() == 0) {
-				cached.delete();
+				Files.deleteIfExists(cached.toPath());
 			}
 
 			if (!cached.exists() && cached.createNewFile()) {
@@ -72,16 +73,12 @@ public abstract class Dependency {
 			conn.setRequestProperty("User-Agent",
 					"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.44");
 
-			final InputStream stream = conn.getInputStream();
-			final ReadableByteChannel byteChan = Channels.newChannel(stream);
-
-			final FileOutputStream fos = new FileOutputStream(downloadDest);
-			final FileChannel fileChan = fos.getChannel();
-
-			fileChan.transferFrom(byteChan, 0, Long.MAX_VALUE);
-
-			fos.close();
-			stream.close();
+			try (InputStream stream = conn.getInputStream();
+					ReadableByteChannel byteChan = Channels.newChannel(stream);
+					FileOutputStream fos = new FileOutputStream(downloadDest);
+					FileChannel fileChan = fos.getChannel()) {
+				fileChan.transferFrom(byteChan, 0, Long.MAX_VALUE);
+			}
 
 			inject.accept(downloadDest);
 

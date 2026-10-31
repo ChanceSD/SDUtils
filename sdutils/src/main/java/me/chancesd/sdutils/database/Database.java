@@ -41,9 +41,13 @@ public class Database {
 
 	private static final String SQL_SELECT_ALL = "SELECT * FROM ";
 	private static final String SQL_INSERT_INTO = "INSERT INTO ";
+	private static final String SQL_UPDATE = "UPDATE ";
+	private static final String SQL_SET = " SET ";
 	private static final String SQL_WHERE = " WHERE ";
 	private static final String SQL_VALUES = " VALUES(";
+	private static final String FAILED_TO_GET_VALUE = "Failed to get value from database";
 
+	@SuppressWarnings("java:S1181")
 	protected Database(final DatabaseFactory databaseFactory, final DatabaseConfigBuilder builder) {
 		this.plugin = databaseFactory.getPlugin();
 		this.databaseType = builder.getType();
@@ -303,7 +307,7 @@ public class Database {
 			final StringBuilder updateString = new StringBuilder();
 			int i = 0;
 			for (final String col : columns) {
-				updateString.append(col + "=?");
+				updateString.append(col).append("=?");
 				i++;
 				if (i < columns.size()) {
 					updateString.append(",");
@@ -311,7 +315,7 @@ public class Database {
 			}
 
 			try (PreparedStatement ps = connection.prepareStatement(
-					"UPDATE " + table.getName() + " SET " + updateString + " WHERE " + index + "=?")) {
+					SQL_UPDATE + table.getName() + SQL_SET + updateString + SQL_WHERE + index + "=?")) {
 				int updates = 0;
 
 				for (final Map.Entry<Object, Collection<Object>> entry : indexToValues.entrySet()) {
@@ -350,7 +354,7 @@ public class Database {
 					return result.getObject(column);
 			}
 		} catch (final SQLException e) {
-			log("Failed to get value from database", e);
+			log(FAILED_TO_GET_VALUE, e);
 		}
 
 		return null;
@@ -376,7 +380,7 @@ public class Database {
 					return result.getObject(column);
 			}
 		} catch (final SQLException e) {
-			log("Failed to get value from database", e);
+			log(FAILED_TO_GET_VALUE, e);
 		}
 
 		return null;
@@ -474,7 +478,7 @@ public class Database {
 		try (Connection connection = getConnection()) {
 			final String update = extra.isEmpty() ? "?" : updateValue + extra;
 			try (PreparedStatement ps = connection
-					.prepareStatement("UPDATE " + table.getName() + " SET " + toUpdate + "=" + update + SQL_WHERE + index + "=?;")) {
+					.prepareStatement(SQL_UPDATE + table.getName() + SQL_SET + toUpdate + "=" + update + SQL_WHERE + index + "=?;")) {
 				if (extra.isEmpty()) {
 					ps.setObject(1, updateValue);
 					ps.setObject(2, indexValue);
@@ -504,7 +508,7 @@ public class Database {
 			}
 			return ps.executeUpdate();
 		} catch (final SQLException e) {
-			log("Failed to get value from database", e);
+			log(FAILED_TO_GET_VALUE, e);
 		}
 
 		return 0;
@@ -538,14 +542,14 @@ public class Database {
 			final StringBuilder updateString = new StringBuilder();
 			int i = 0;
 			for (final String col : columns) {
-				updateString.append(col + "=?");
+				updateString.append(col).append("=?");
 				i++;
 				if (i < columns.size()) {
 					updateString.append(",");
 				}
 			}
 			try (PreparedStatement ps = connection
-					.prepareStatement("UPDATE " + table.getName() + " SET " + updateString + SQL_WHERE + index + "=?;")) {
+					.prepareStatement(SQL_UPDATE + table.getName() + SQL_SET + updateString + SQL_WHERE + index + "=?;")) {
 				i = 0;
 				for (final Object object : values) {
 					ps.setObject(++i, object);

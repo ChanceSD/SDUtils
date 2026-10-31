@@ -18,6 +18,10 @@ import java.util.*;
 
 public class ConfigUpdater {
 
+	private ConfigUpdater() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	// Used for separating keys in the keyBuilder inside parseComments method
 	private static final char SEPARATOR = '.';
 
@@ -59,9 +63,8 @@ public class ConfigUpdater {
 		outer: for (final String fullKey : defaultConfig.getKeys(true)) {
 			final String indents = KeyUtils.getIndents(fullKey, SEPARATOR);
 
-			if (!ignoredSectionsValues.isEmpty()) {
-				if (writeIgnoredSectionValueIfExists(ignoredSectionsValues, writer, fullKey))
-					continue;
+			if (!ignoredSectionsValues.isEmpty() && writeIgnoredSectionValueIfExists(ignoredSectionsValues, writer, fullKey)) {
+				continue;
 			}
 			writeCommentIfExists(comments, writer, fullKey, indents);
 			Object currentValue = currentConfig.get(fullKey);
@@ -131,7 +134,7 @@ public class ConfigUpdater {
 				final String key = keyBuilder.toString();
 
 				// If there is a comment associated with the key it is added to comments map and the commentBuilder is reset
-				if (commentBuilder.length() > 0) {
+				if (!commentBuilder.isEmpty()) {
 					comments.put(key, commentBuilder.toString());
 					commentBuilder.setLength(0);
 				}
@@ -154,7 +157,7 @@ public class ConfigUpdater {
 		}
 		reader.close();
 
-		if (commentBuilder.length() > 0)
+		if (!commentBuilder.isEmpty())
 			comments.put(null, commentBuilder.toString());
 
 		return comments;
@@ -162,7 +165,7 @@ public class ConfigUpdater {
 
 	private static Map<String, String> parseIgnoredSections(final File toUpdate, final Map<String, String> comments, final List<String> ignoredSections)
 			throws IOException {
-		final Map<String, String> ignoredSectionValues = new LinkedHashMap<>(ignoredSections.size());
+		final Map<String, String> ignoredSectionValues = LinkedHashMap.newLinkedHashMap(ignoredSections.size());
 
 		final DumperOptions options = new DumperOptions();
 		options.setLineBreak(DumperOptions.LineBreak.UNIX);
@@ -180,7 +183,7 @@ public class ConfigUpdater {
 			final StringBuilder keyBuilder = new StringBuilder();
 			for (int i = 0; i < split.length; i++) {
 				if (i != split.length - 1) {
-					if (keyBuilder.length() > 0)
+					if (!keyBuilder.isEmpty())
 						keyBuilder.append(SEPARATOR);
 
 					keyBuilder.append(split[i]);
@@ -203,14 +206,7 @@ public class ConfigUpdater {
 		if (keys.length == 1) {
 			if (value instanceof Map)
 				return root;
-			/*
-			 * if (value == null) {
-			 * Map<Object, Object> map= new HashMap<>();
-			 * map.put(key,"{}");
-			 * System.out.println("key " + key);
-			 * return map;
-			 * }
-			 */
+
 			throw new IllegalArgumentException("Ignored sections must be a ConfigurationSection not a value!");
 		}
 
@@ -227,7 +223,7 @@ public class ConfigUpdater {
 		final String key = keys[0];
 		final Object originalKey = getKeyAsObject(key, ymlMap);
 
-		if (keyBuilder.length() > 0)
+		if (!keyBuilder.isEmpty())
 			keyBuilder.append(".");
 
 		keyBuilder.append(key);
@@ -284,7 +280,7 @@ public class ConfigUpdater {
 		final String[] split = s.split("\n");
 
 		for (final String value : split) {
-			if (builder.length() > 0)
+			if (!builder.isEmpty())
 				builder.append("\n");
 
 			builder.append(indents).append(value);
@@ -314,6 +310,7 @@ public class ConfigUpdater {
 			if (sectionContext.containsKey(keyFloat))
 				return keyFloat;
 		} catch (final NumberFormatException ignored) {
+			// Ignore and try next numeric type
 		}
 
 		try {
@@ -322,6 +319,7 @@ public class ConfigUpdater {
 			if (sectionContext.containsKey(keyDouble))
 				return keyDouble;
 		} catch (final NumberFormatException ignored) {
+			// Ignore and try next numeric type
 		}
 
 		try {
@@ -330,6 +328,7 @@ public class ConfigUpdater {
 			if (sectionContext.containsKey(keyInteger))
 				return keyInteger;
 		} catch (final NumberFormatException ignored) {
+			// Ignore and try next numeric type
 		}
 
 		try {
@@ -338,6 +337,7 @@ public class ConfigUpdater {
 			if (sectionContext.containsKey(longKey))
 				return longKey;
 		} catch (final NumberFormatException ignored) {
+			// Ignore and try next numeric type
 		}
 
 		return null;

@@ -25,11 +25,7 @@ public class Table {
 			i += 1;
 			final String[] c = b.split(" ");
 			final String f = c[0] == null || c[0].isEmpty() ? c[1] : c[0];
-			String next = "";
-			if (f != null) {
-				next = f + (i <= a.length - 1 ? "," : "");
-			}
-			v.append(next);
+			v.append(f).append(i <= a.length - 1 ? "," : "");
 		}
 
 		return "(" + v + ")";

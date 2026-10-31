@@ -11,23 +11,20 @@ import org.junit.jupiter.api.Test;
 class TimeUtilTest {
 
 	private static final Instant START = Instant.EPOCH;
-	private static final TimeUtil.TimeLangProvider LANG = new TimeUtil.TimeLangProvider() {
-		@Override
-		public String getTime(final ChronoUnit time) {
-			switch (time) {
-			case DAYS:
-				return "d";
-			case HOURS:
-				return "h";
-			case MINUTES:
-				return "m";
-			case SECONDS:
-				return "s";
-			case FOREVER:
-				return "now";
-			default:
-				return "";
-			}
+	private static final TimeUtil.TimeLangProvider LANG = time -> {
+		switch (time) {
+		case DAYS:
+			return "d";
+		case HOURS:
+			return "h";
+		case MINUTES:
+			return "m";
+		case SECONDS:
+			return "s";
+		case FOREVER:
+			return "now";
+		default:
+			return "";
 		}
 	};
 

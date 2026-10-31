@@ -2,7 +2,12 @@ package me.chancesd.sdutils.display.chat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
@@ -13,7 +18,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import me.chancesd.sdutils.display.chat.content.StaticContentProvider;
@@ -32,7 +36,7 @@ class ChatMenuTest {
 
 	@BeforeAll
 	static void beforeAll() {
-		Bukkit.setServer(Mockito.mock(Server.class, RETURNS_MOCKS));
+		Bukkit.setServer(mock(Server.class, RETURNS_MOCKS));
 	}
 
     @BeforeEach

@@ -2,7 +2,7 @@ package me.chancesd.sdutils.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-public class KeyBuilder implements Cloneable {
+public class KeyBuilder {
 
     private final FileConfiguration config;
     private final char separator;
@@ -14,7 +14,7 @@ public class KeyBuilder implements Cloneable {
         this.builder = new StringBuilder();
     }
 
-    private KeyBuilder(final KeyBuilder keyBuilder) {
+    public KeyBuilder(final KeyBuilder keyBuilder) {
         this.config = keyBuilder.config;
         this.separator = keyBuilder.separator;
         this.builder = new StringBuilder(keyBuilder.toString());
@@ -33,14 +33,14 @@ public class KeyBuilder implements Cloneable {
         if (checkIfExists) {
             //Checks keyBuilder path against config to see if the path is valid.
             //If the path doesn't exist in the config it keeps removing last key in keyBuilder.
-            while (builder.length() > 0 && !config.contains(builder.toString() + separator + key)) {
+            while (!builder.isEmpty() && !config.contains(builder.toString() + separator + key)) {
                 removeLastKey();
             }
         }
 
         //Add the separator if there is already a key inside keyBuilder
         //If currentSplitLine[0] is 'key2' and keyBuilder contains 'key1' the result will be 'key1.' if '.' is the separator
-        if (builder.length() > 0)
+        if (!builder.isEmpty())
             builder.append(separator);
 
         //Appends the current key to keyBuilder
@@ -49,14 +49,14 @@ public class KeyBuilder implements Cloneable {
     }
 
     public String getLastKey() {
-        if (builder.length() == 0)
+        if (builder.isEmpty())
             return "";
 
         return builder.toString().split("[" + separator + "]")[0];
     }
 
     public boolean isEmpty() {
-        return builder.length() == 0;
+        return builder.isEmpty();
     }
     public void clear() {
         builder.setLength(0);
@@ -83,7 +83,7 @@ public class KeyBuilder implements Cloneable {
 
     //Input: 'key1.key2' Result: 'key1'
     public void removeLastKey() {
-        if (builder.length() == 0)
+        if (builder.isEmpty())
             return;
 
         final String keyString = builder.toString();
@@ -99,8 +99,5 @@ public class KeyBuilder implements Cloneable {
         return builder.toString();
     }
 
-    @Override
-    protected KeyBuilder clone() {
-        return new KeyBuilder(this);
-    }
+
 }

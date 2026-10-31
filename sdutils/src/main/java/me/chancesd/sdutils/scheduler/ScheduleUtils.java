@@ -15,7 +15,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -348,7 +347,7 @@ public class ScheduleUtils {
 	public static CompletableFuture<Boolean> teleport(final Entity entity, @NotNull final Location loc, @NotNull final String errorMessage) {
 		final CompletableFuture<Boolean> future = provider.teleport(entity, loc);
 		future.whenComplete((success, ex) -> {
-			if (!success || ex != null) {
+			if (ex != null || !Boolean.TRUE.equals(success)) {
 				Log.severe(errorMessage, ex);
 			}
 		});

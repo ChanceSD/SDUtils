@@ -3,7 +3,6 @@ package me.chancesd.sdutils.display;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -12,7 +11,11 @@ import java.util.concurrent.TimeUnit;
 import me.chancesd.sdutils.scheduler.ScheduleUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class DisplayManagerTest {
 
@@ -25,13 +28,13 @@ class DisplayManagerTest {
     @BeforeEach
     void setUp() {
         displayManager = new DisplayManager();
-        mockPlayer = Mockito.mock(Player.class);
-        mockCountdownData = Mockito.mock(CountdownData.class);
-        mockExecutor = Mockito.mock(ScheduledExecutorService.class);
-        mockFuture = Mockito.mock(ScheduledFuture.class);
+        mockPlayer = mock(Player.class);
+        mockCountdownData = mock(CountdownData.class);
+        mockExecutor = mock(ScheduledExecutorService.class);
+        mockFuture = mock(ScheduledFuture.class);
 
         ScheduleUtils.setExecutor(mockExecutor);
-		Mockito.doReturn(mockFuture).when(mockExecutor).scheduleAtFixedRate(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
+		doReturn(mockFuture).when(mockExecutor).scheduleAtFixedRate(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
     }
 
     @Test

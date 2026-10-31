@@ -7,7 +7,7 @@ import me.chancesd.sdutils.scheduler.ScheduleUtils;
 
 public abstract class PausableTask implements Runnable {
 	private long finishTime;
-	private long duration;
+	private final long duration;
 	private ScheduledFuture<?> task;
 	private boolean paused;
 	private long pausedAt;

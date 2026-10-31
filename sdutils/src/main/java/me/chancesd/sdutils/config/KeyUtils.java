@@ -2,12 +2,16 @@ package me.chancesd.sdutils.config;
 
 public class KeyUtils {
 
+	private KeyUtils() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	public static boolean isSubKeyOf(final String parentKey, final String subKey, final char separator) {
 		if (parentKey.isEmpty())
 			return false;
 
 		return subKey.startsWith(parentKey)
-				&& subKey.substring(parentKey.length()).startsWith(String.valueOf(separator));
+				&& subKey.startsWith(String.valueOf(separator), parentKey.length());
 	}
 
 	public static String getIndents(final String key, final char separator) {

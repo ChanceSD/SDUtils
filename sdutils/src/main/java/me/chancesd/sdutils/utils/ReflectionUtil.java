@@ -4,6 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 
 public class ReflectionUtil {
 
+	private ReflectionUtil() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	public static Object invokeMethods(final Object object, final String... methods)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		Object result = object;

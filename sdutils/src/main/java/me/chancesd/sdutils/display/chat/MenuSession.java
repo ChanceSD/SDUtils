@@ -91,7 +91,7 @@ public class MenuSession {
     }
 
     private String replacePlaceholders(final String text, final int page, final int totalPages) {
-        final String playerName = sender instanceof Player ? ((Player) sender).getName() : "Console";
+        final String playerName = sender instanceof final Player player ? player.getName() : "Console";
         return ChatUtils.colorize(text.replace("{page}", String.valueOf(page))
                 .replace("{total}", String.valueOf(totalPages))
                 .replace("{player}", playerName));

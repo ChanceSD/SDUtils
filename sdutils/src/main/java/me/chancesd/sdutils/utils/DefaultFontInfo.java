@@ -1,5 +1,6 @@
 package me.chancesd.sdutils.utils;
 
+@SuppressWarnings("java:S115")
 public enum DefaultFontInfo {
 
 	A('A', 5),

@@ -4,14 +4,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.yaml.snakeyaml.reader.UnicodeReader;
 
 import me.chancesd.sdutils.utils.Log;
-import me.chancesd.sdutils.utils.Utils;
 import me.chancesd.sdutils.utils.MCVersion;
 
 /**
@@ -90,19 +88,23 @@ public class PluginLibraries {
 		try {
 			// Doesn't exist before 1.16.5
 			PluginDescriptionFile.class.getMethod("getLibraries");
-			if (MCVersion.isLowerThan(MCVersion.V1_21)) {
-				try {
-					// Mohist has getLibraries but it doesn't work properly
-					Class.forName("com.mohistmc.MohistMCStart");
-					return false;
-				} catch (final ClassNotFoundException e) {
-					// Not Mohist
-				}
-			}
-			return true;
+			return !isMohistBelow121();
 		} catch (final Exception ex) {
 			// Server too old to support getLibraries.
 			return false;
 		}
+	}
+
+	private static boolean isMohistBelow121() {
+		if (MCVersion.isLowerThan(MCVersion.V1_21)) {
+			try {
+				// Mohist has getLibraries but it doesn't work properly
+				Class.forName("com.mohistmc.MohistMCStart");
+				return true;
+			} catch (final ClassNotFoundException e) {
+				// Not Mohist
+			}
+		}
+		return false;
 	}
 }
